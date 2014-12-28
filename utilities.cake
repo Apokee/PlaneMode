@@ -1,3 +1,23 @@
+#r "Library/NuGet/YamlDotNet.3.5.0/lib/net35/YamlDotNet.dll"
+
+using YamlDotNet.Serialization;
+
+public T GetBuildConfiguration<T>()
+{
+	var workingDirectorySegments = GetContext().Environment.WorkingDirectory.Segments;
+	var workingDirectoryName = workingDirectorySegments[workingDirectorySegments.Length - 1];
+
+	var configFile = (new [] { "build.yml", String.Format("../{0}.build.yml", workingDirectoryName) })
+		.FirstOrDefault(File.Exists);
+
+	if (configFile == null)
+	{
+		throw new Exception("Build configuration file does not exist.");
+	}
+
+	return new Deserializer(ignoreUnmatched: true).Deserialize<T>(new StreamReader(configFile));
+}
+
 public string GetSolution()
 {
 	var solutions = Directory.GetFiles(GetContext().Environment.WorkingDirectory.FullPath, "*.sln");
