@@ -1,7 +1,6 @@
 /Library/KSP/
-
-bin/
-obj/
+/Library/NuGet/
+/Output/
 
 *.suo
 *.user
