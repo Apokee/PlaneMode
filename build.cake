@@ -5,7 +5,7 @@ using YamlDotNet.Serialization;
 public sealed class BuildConfiguration
 {
     [YamlAlias("ksp_dir")]
-    public string KspDirectory { get; set; }
+    public string KspDir { get; set; }
 
     [YamlAlias("ksp_bin")]
     public string KspBin { get; set; }
@@ -21,8 +21,28 @@ var binDirectory = System.IO.Path.Combine(outputDirectory, "Plugins", "bin", con
 var stageDirectory = System.IO.Path.Combine(outputDirectory, "Stage", configuration);
 var stageGameDataDirectory = System.IO.Path.Combine(stageDirectory, "GameData");
 var stageAirplaneModeDirectory = System.IO.Path.Combine(stageGameDataDirectory, "AeroplaneMode");
-var deployAirplaneModeDirectory = System.IO.Path.Combine(buildConfiguration.KspDirectory, "GameData", "AeroplaneMode");
+var deployAirplaneModeDirectory = System.IO.Path.Combine(buildConfiguration.KspDir, "GameData", "AeroplaneMode");
 var packageDirectory = System.IO.Path.Combine(outputDirectory, "Package", configuration);
+
+Task("Init")
+    .Does(() =>
+{
+    var kspLibDirectory = System.IO.Path.Combine("Library", "KSP");
+    var kspLibs = new [] { "Assembly-CSharp.dll", "Assembly-CSharp-firstpass.dll", "UnityEngine.dll" };
+
+    CreateDirectory(kspLibDirectory);
+
+    foreach (var kspLib in kspLibs)
+    {
+        if (!File.Exists(System.IO.Path.Combine(kspLibDirectory, kspLib)))
+        {
+            CopyFileToDirectory(
+                System.IO.Path.Combine(buildConfiguration.KspDir, "KSP_Data", "Managed", kspLib),
+                kspLibDirectory
+            );
+        }
+    }
+});
 
 Task("Clean")
     .Does(() =>
@@ -50,6 +70,7 @@ Task("CleanDeploy")
 
 Task("Build")
     .IsDependentOn("Clean")
+    .IsDependentOn("Init")
     .Does(() =>
 {
     MSBuild(GetSolution(), settings => settings.SetConfiguration(configuration));
@@ -85,9 +106,9 @@ Task("Run")
     .IsDependentOn("Deploy")
     .Does(() =>
 {
-    StartProcess(System.IO.Path.Combine(buildConfiguration.KspDirectory, buildConfiguration.KspBin), new ProcessSettings
+    StartProcess(System.IO.Path.Combine(buildConfiguration.KspDir, buildConfiguration.KspBin), new ProcessSettings
         {
-            WorkingDirectory = buildConfiguration.KspDirectory
+            WorkingDirectory = buildConfiguration.KspDir
         });
 });
 
