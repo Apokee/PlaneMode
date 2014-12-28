@@ -6,6 +6,10 @@ var configuration = Argument<string>("configuration", "Debug");
 var outputDirectory = "Output";
 var binDirectory = System.IO.Path.Combine(outputDirectory, "Plugins", "bin", configuration);
 var stageDirectory = System.IO.Path.Combine(outputDirectory, "Stage", configuration);
+var stageGameDataDirectory = System.IO.Path.Combine(stageDirectory, "GameData");
+var stageAirplaneModeDirectory = System.IO.Path.Combine(stageGameDataDirectory, "AeroplaneMode");
+var kspDirectory = "C:/Dev/Kerbal Space Program";
+var deployAirplaneModeDirectory = System.IO.Path.Combine(kspDirectory, "GameData", "AeroplaneMode");
 var packageDirectory = System.IO.Path.Combine(outputDirectory, "Package", configuration);
 
 Task("Clean")
@@ -26,6 +30,12 @@ Task("CleanPackage")
     CleanDirectories(new DirectoryPath[] { packageDirectory });
 });
 
+Task("CleanDeploy")
+    .Does(() =>
+{
+    CleanDirectories(new DirectoryPath[] { deployAirplaneModeDirectory });
+});
+
 Task("Build")
     .IsDependentOn("Clean")
     .Does(() =>
@@ -38,19 +48,25 @@ Task("Stage")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    var gameDataDirectory = System.IO.Path.Combine(stageDirectory, "GameData");
-    var airplaneModeDirectory = System.IO.Path.Combine(gameDataDirectory, "AeroplaneMode");
-    var pluginsDirectory = System.IO.Path.Combine(airplaneModeDirectory);
+    var pluginsDirectory = System.IO.Path.Combine(stageAirplaneModeDirectory);
 
-    CreateDirectory(gameDataDirectory);
-    CreateDirectory(airplaneModeDirectory);
+    CreateDirectory(stageGameDataDirectory);
+    CreateDirectory(stageAirplaneModeDirectory);
     CreateDirectory(pluginsDirectory);
 
     CopyFiles(binDirectory + "/*", pluginsDirectory);
-    CopyFiles("GameData/*", airplaneModeDirectory);
-    CopyFileToDirectory("CHANGES.md", airplaneModeDirectory);
-    CopyFileToDirectory("LICENSE", airplaneModeDirectory);
-    CopyFileToDirectory("README.md", airplaneModeDirectory);
+    CopyFiles("GameData/*", stageAirplaneModeDirectory);
+    CopyFileToDirectory("CHANGES.md", stageAirplaneModeDirectory);
+    CopyFileToDirectory("LICENSE", stageAirplaneModeDirectory);
+    CopyFileToDirectory("README.md", stageAirplaneModeDirectory);
+});
+
+Task("Deploy")
+    .IsDependentOn("Stage")
+    .IsDependentOn("CleanDeploy")
+    .Does(() =>
+{
+    CopyFiles(stageAirplaneModeDirectory + "/*", deployAirplaneModeDirectory);
 });
 
 Task("Package")
