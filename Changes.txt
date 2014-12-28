@@ -1,0 +1,5 @@
+0.1
+- first release
+
+0.2
+- added option to invert pitch in aero mode
