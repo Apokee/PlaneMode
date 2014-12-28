@@ -143,7 +143,7 @@ namespace AeroplaneMode
 
                 if ((yaw != 0) || (roll != 0) || ((pitch != 0) && pitch_invert))
                 {
-                    FlightGlobals.ActiveVessel.VesselSAS.ManualOverride(true);
+                    FlightGlobals.ActiveVessel.Autopilot.SAS.ManualOverride(true);
                     
                     control_state.yaw = roll;
                     control_state.roll = yaw;
@@ -153,7 +153,7 @@ namespace AeroplaneMode
 
                 else
                 {
-                    FlightGlobals.ActiveVessel.VesselSAS.ManualOverride(false);
+                    FlightGlobals.ActiveVessel.Autopilot.SAS.ManualOverride(false);
                 }
             }
         }
