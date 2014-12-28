@@ -1,6 +1,6 @@
 #l "utilities.cake"
 
-var target = Argument<string>("target", "Build");
+var target = Argument<string>("target");
 var configuration = Argument<string>("configuration", "Debug");
 
 var outputDirectory = "Output";

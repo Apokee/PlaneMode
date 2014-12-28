@@ -14,10 +14,17 @@ iex "$NugetExe install `"$PackagesConfigFile`" -OutputDirectory `"$PackagesDir`"
 	Select-String -NotMatch -Pattern "All packages listed in packages.config are already installed."
 
 # Run Cake
-$target = $args[0];
+$target="Build"
+
+if ($args.length > 0)
+{
+    $target = $args[0];
+}
+
 if ($args.length > 1)
 {
     $extraArgs = $args[1..($args.length-1)];
 }
+
 iex "$CakeExe build.cake -target=$target $extraArgs"
 exit $LASTEXITCODE
