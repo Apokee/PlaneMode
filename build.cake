@@ -69,6 +69,16 @@ Task("Deploy")
     CopyFiles(stageAirplaneModeDirectory + "/*", deployAirplaneModeDirectory);
 });
 
+Task("Run")
+    .IsDependentOn("Deploy")
+    .Does(() =>
+{
+    StartProcess(System.IO.Path.Combine(kspDirectory, "KSP.exe"), new ProcessSettings
+        {
+            WorkingDirectory = kspDirectory
+        });
+});
+
 Task("Package")
     .IsDependentOn("CleanPackage")
     .IsDependentOn("Stage")
