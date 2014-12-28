@@ -1,15 +1,27 @@
 #l "utilities.cake"
 
+using YamlDotNet.Serialization;
+
+public sealed class BuildConfiguration
+{
+    [YamlAlias("ksp_dir")]
+    public string KspDirectory { get; set; }
+
+    [YamlAlias("ksp_bin")]
+    public string KspBin { get; set; }
+}
+
 var target = Argument<string>("target");
 var configuration = Argument<string>("configuration", "Debug");
+
+var buildConfiguration = GetBuildConfiguration<BuildConfiguration>();
 
 var outputDirectory = "Output";
 var binDirectory = System.IO.Path.Combine(outputDirectory, "Plugins", "bin", configuration);
 var stageDirectory = System.IO.Path.Combine(outputDirectory, "Stage", configuration);
 var stageGameDataDirectory = System.IO.Path.Combine(stageDirectory, "GameData");
 var stageAirplaneModeDirectory = System.IO.Path.Combine(stageGameDataDirectory, "AeroplaneMode");
-var kspDirectory = "C:/Dev/Kerbal Space Program";
-var deployAirplaneModeDirectory = System.IO.Path.Combine(kspDirectory, "GameData", "AeroplaneMode");
+var deployAirplaneModeDirectory = System.IO.Path.Combine(buildConfiguration.KspDirectory, "GameData", "AeroplaneMode");
 var packageDirectory = System.IO.Path.Combine(outputDirectory, "Package", configuration);
 
 Task("Clean")
@@ -73,9 +85,9 @@ Task("Run")
     .IsDependentOn("Deploy")
     .Does(() =>
 {
-    StartProcess(System.IO.Path.Combine(kspDirectory, "KSP.exe"), new ProcessSettings
+    StartProcess(System.IO.Path.Combine(buildConfiguration.KspDirectory, buildConfiguration.KspBin), new ProcessSettings
         {
-            WorkingDirectory = kspDirectory
+            WorkingDirectory = buildConfiguration.KspDirectory
         });
 });
 

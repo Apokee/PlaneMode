@@ -16,12 +16,12 @@ iex "$NugetExe install `"$PackagesConfigFile`" -OutputDirectory `"$PackagesDir`"
 # Run Cake
 $target="Build"
 
-if ($args.length > 0)
+if ($args.length -gt 0)
 {
     $target = $args[0];
 }
 
-if ($args.length > 1)
+if ($args.length -gt 1)
 {
     $extraArgs = $args[1..($args.length-1)];
 }
