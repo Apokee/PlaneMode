@@ -17,7 +17,8 @@ var configuration = Argument<string>("configuration", "Debug");
 var buildConfiguration = GetBuildConfiguration<BuildConfiguration>();
 
 var outputDirectory = "Output";
-var binDirectory = System.IO.Path.Combine(outputDirectory, "Plugins", "bin", configuration);
+var buildDirectory = System.IO.Path.Combine(outputDirectory, "Build", configuration);
+var binDirectory = System.IO.Path.Combine(buildDirectory, "Common", "bin");
 var stageDirectory = System.IO.Path.Combine(outputDirectory, "Stage", configuration);
 var stageGameDataDirectory = System.IO.Path.Combine(stageDirectory, "GameData");
 var stageAirplaneModeDirectory = System.IO.Path.Combine(stageGameDataDirectory, "AeroplaneMode");
@@ -51,7 +52,7 @@ Task("Init")
 Task("CleanBuild")
     .Does(() =>
 {
-    CleanDirectories(new DirectoryPath[] { System.IO.Path.Combine(outputDirectory, "Plugins") });
+    CleanDirectories(new DirectoryPath[] { buildDirectory });
 });
 
 Task("CleanStage")
