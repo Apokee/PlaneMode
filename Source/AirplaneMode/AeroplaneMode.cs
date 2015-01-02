@@ -121,7 +121,7 @@ namespace AirplaneMode
             if (control_mode_state)
             {
                 ScreenMessages.PostScreenMessage(control_mode_message_airplane, true);
-                if (toolbar_installed) control_mode_button.TexturePath = "AirplaneMode/aero_mode";             
+                if (toolbar_installed) control_mode_button.TexturePath = "AirplaneMode/airplane_mode";             
             }
 
             else
