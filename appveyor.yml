@@ -19,5 +19,4 @@ install:
 
 build_script:
     ps: |
-        echo "Configuration: $env:CONFIGURATION"
-        ./build -configuration=$env:CONFIGURATION
+        ./build -configuration="$env:CONFIGURATION"
