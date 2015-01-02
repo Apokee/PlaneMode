@@ -1,3 +1,7 @@
+## Unreleased
+##### Changes
+- Change "Aeroplane" to "Airplane"
+
 ## v0.2.0
 - Added option to invert pitch in aero mode.
 
