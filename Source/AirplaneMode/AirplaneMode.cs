@@ -12,8 +12,8 @@ namespace AirplaneMode
         #region Constants
 
         private const string ModDirectory = "AirplaneMode";
-        private const string TooltipToggleAirplane = "Toggle Airplane Mode";
-        private const string TooltipToggleRocket = "Toggle Rocket Mode";
+        private const string TooltipToggleAirplane = "Switch to Airplane Mode";
+        private const string TooltipToggleRocket = "Switch to Rocket Mode";
         private const float ScreenMessageDurationSeconds = 5;
 
         private const string TexturePathAirplane = ModDirectory + "/" + "airplane_mode";
