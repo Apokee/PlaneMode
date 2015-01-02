@@ -1,0 +1,22 @@
+version: "{build}"
+
+configuration:
+  - Debug
+  - Release
+
+install:
+    ps: |
+        $kspLibs = "Assembly-CSharp.dll", "Assembly-CSharp-firstpass.dll", "UnityEngine.dll"
+        $kspLibsUrl = "http://build.apokee.com/dependencies/ksp/0.90"
+        $kspLibsDir = "$env:APPVEYOR_BUILD_FOLDER/Library/KSP"
+
+        New-Item $libKspDir -Type Directory -Force | Out-Null
+
+        foreach ($kspLib in $kspLibs)
+        {
+          Start-FileDownload "kspLibsUrl/$kspLib" -FileName "$kspLibsDir/$kspLib"
+        }
+
+build_script:
+    ps: |
+        ./build -configuration=$env:CONFIGURATION
