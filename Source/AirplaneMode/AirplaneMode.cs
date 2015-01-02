@@ -44,6 +44,7 @@ namespace AirplaneMode
 
         #region State
 
+        private Vessel _currentVessel;
         private ControlMode _controlMode;
 
         #endregion
@@ -82,8 +83,12 @@ namespace AirplaneMode
                 _controlModeButton.Destroy();
             }
 
-            // ReSharper disable once DelegateSubtraction
-            FlightGlobals.ActiveVessel.OnFlyByWire -= OnFlyByWire;
+            if (_currentVessel != null)
+            {
+                // ReSharper disable once DelegateSubtraction
+                _currentVessel.OnFlyByWire -= OnFlyByWire;
+                _currentVessel = null;
+            }
         }
 
         public void Start()
@@ -93,8 +98,8 @@ namespace AirplaneMode
 
             LoadKeyConfig();
 
-            // TODO: We're attaching to ActiveVessel, this probably causes problems when vessel switch
-            FlightGlobals.ActiveVessel.OnFlyByWire += OnFlyByWire;
+            GameEvents.onVesselChange.Add(OnVesselChange);
+            OnVesselChange(FlightGlobals.ActiveVessel);
         }
 
         public void Update()
@@ -108,6 +113,22 @@ namespace AirplaneMode
         #endregion
 
         #region Event Handlers
+
+        private void OnVesselChange(Vessel data)
+        {
+            if (_currentVessel != null)
+            {
+                // ReSharper disable once DelegateSubtraction
+                _currentVessel.OnFlyByWire -= OnFlyByWire;
+            }
+
+            if (data != null)
+            {
+                data.OnFlyByWire += OnFlyByWire;
+            }
+
+            _currentVessel = data;
+        }
 
         private void OnControlModeButtonOnClick(ClickEvent e)
         {
