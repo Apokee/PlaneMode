@@ -10,11 +10,11 @@ install:
         $kspLibsUrl = "http://build.apokee.com/dependencies/ksp/0.90"
         $kspLibsDir = "$env:APPVEYOR_BUILD_FOLDER/Library/KSP"
 
-        New-Item $libKspDir -Type Directory -Force | Out-Null
+        New-Item $kspLibsDir -Type Directory -Force | Out-Null
 
         foreach ($kspLib in $kspLibs)
         {
-          Start-FileDownload "kspLibsUrl/$kspLib" -FileName "$kspLibsDir/$kspLib"
+          Start-FileDownload "$kspLibsUrl/$kspLib" -FileName "$kspLibsDir/$kspLib"
         }
 
 build_script:
