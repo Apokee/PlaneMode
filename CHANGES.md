@@ -1,9 +1,10 @@
 ## Unreleased
 ##### Changes
-- Change "Aeroplane" to "Airplane"
+- Change "Aeroplane" to "Airplane".
 
 ##### Fixes
-- Update Toolbar button tooltip when changing modes
+- Update Toolbar button tooltip when changing modes.
+- Handle switching vessels better.
 
 ## v0.2.0
 - Added option to invert pitch in aero mode.
