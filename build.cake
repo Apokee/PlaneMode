@@ -26,8 +26,8 @@ var buildDirectory = System.IO.Path.Combine(outputDirectory, "Build", configurat
 var binDirectory = System.IO.Path.Combine(buildDirectory, "Common", "bin");
 var stageDirectory = System.IO.Path.Combine(outputDirectory, "Stage", configuration);
 var stageGameDataDirectory = System.IO.Path.Combine(stageDirectory, "GameData");
-var stageAirplaneModeDirectory = System.IO.Path.Combine(stageGameDataDirectory, "AeroplaneMode");
-var deployAirplaneModeDirectory = buildConfiguration.KspPath("GameData", "AeroplaneMode");
+var stageAirplaneModeDirectory = System.IO.Path.Combine(stageGameDataDirectory, "AirplaneMode");
+var deployAirplaneModeDirectory = buildConfiguration.KspPath("GameData", "AirplaneMode");
 var packageDirectory = System.IO.Path.Combine(outputDirectory, "Package", configuration);
 
 Task("Default")

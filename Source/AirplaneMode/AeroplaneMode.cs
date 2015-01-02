@@ -5,11 +5,11 @@ using System.Text;
 using UnityEngine;
 //using Toolbar;
 
-namespace AeroplaneMode
+namespace AirplaneMode
 {
     [KSPAddon(KSPAddon.Startup.Flight, false)]
 
-    public class AeroplaneMode : MonoBehaviour
+    public class AirplaneMode : MonoBehaviour
     {
         public static KeyBinding TOGGLE_CONTROL_MODE = new KeyBinding(KeyCode.ScrollLock);
         public static KeyBinding HOLD_CONTROL_MODE = new KeyBinding(KeyCode.Home);
@@ -20,19 +20,19 @@ namespace AeroplaneMode
         private bool toolbar_installed;
         private IButton control_mode_button;
 
-        private ScreenMessage control_mode_message_aeroplane = new ScreenMessage("Aeroplane mode", 5, ScreenMessageStyle.LOWER_CENTER);
+        private ScreenMessage control_mode_message_airplane = new ScreenMessage("Airplane mode", 5, ScreenMessageStyle.LOWER_CENTER);
         private ScreenMessage control_mode_message_rocket = new ScreenMessage("Rocket mode", 5, ScreenMessageStyle.LOWER_CENTER);
 
-        internal AeroplaneMode()
+        internal AirplaneMode()
         {
 
             if (ToolbarManager.ToolbarAvailable)
             {
                 toolbar_installed = true;
 
-                control_mode_button = ToolbarManager.Instance.add("AeroplaneMode", "control_mode_button");
-                control_mode_button.TexturePath = "AeroplaneMode/rocket_mode";
-                control_mode_button.ToolTip = "Toggle Aeroplane Mode";
+                control_mode_button = ToolbarManager.Instance.add("AirplaneMode", "control_mode_button");
+                control_mode_button.TexturePath = "AirplaneMode/rocket_mode";
+                control_mode_button.ToolTip = "Toggle Airplane Mode";
 
                 control_mode_button.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
 
@@ -40,14 +40,14 @@ namespace AeroplaneMode
                 {
                     control_mode_state = !control_mode_state;
 
-                    ScreenMessages.RemoveMessage(control_mode_message_aeroplane);
+                    ScreenMessages.RemoveMessage(control_mode_message_airplane);
                     ScreenMessages.RemoveMessage(control_mode_message_rocket);
 
                     update_interface();
 
                     if (control_mode_state)
                     {                        
-                        ScreenMessages.PostScreenMessage(control_mode_message_aeroplane, true);
+                        ScreenMessages.PostScreenMessage(control_mode_message_airplane, true);
                     }
 
                     else
@@ -88,7 +88,7 @@ namespace AeroplaneMode
         {
             try
             {
-                foreach (ConfigNode config in GameDatabase.Instance.GetConfigNodes("aeroplane_mode_config"))
+                foreach (ConfigNode config in GameDatabase.Instance.GetConfigNodes("airplane_mode_config"))
                 {
                     if (config.HasNode("TOGGLE_CONTROL_MODE"))
                     {
@@ -115,19 +115,19 @@ namespace AeroplaneMode
 
         private void update_interface()
         {
-            ScreenMessages.RemoveMessage(control_mode_message_aeroplane);
+            ScreenMessages.RemoveMessage(control_mode_message_airplane);
             ScreenMessages.RemoveMessage(control_mode_message_rocket);
 
             if (control_mode_state)
             {
-                ScreenMessages.PostScreenMessage(control_mode_message_aeroplane, true);
-                if (toolbar_installed) control_mode_button.TexturePath = "AeroplaneMode/aero_mode";             
+                ScreenMessages.PostScreenMessage(control_mode_message_airplane, true);
+                if (toolbar_installed) control_mode_button.TexturePath = "AirplaneMode/airplane_mode";             
             }
 
             else
             {
                 ScreenMessages.PostScreenMessage(control_mode_message_rocket, true);
-                if (toolbar_installed) control_mode_button.TexturePath = "AeroplaneMode/rocket_mode"; 
+                if (toolbar_installed) control_mode_button.TexturePath = "AirplaneMode/rocket_mode"; 
             }
         }
 
