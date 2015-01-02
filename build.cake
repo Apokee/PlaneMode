@@ -11,18 +11,23 @@ public sealed class BuildConfiguration
     public string KspBin { get; set; }
 }
 
-var target = Argument<string>("target");
+var target = Argument<string>("target", "Default");
 var configuration = Argument<string>("configuration", "Debug");
 
 var buildConfiguration = GetBuildConfiguration<BuildConfiguration>();
 
 var outputDirectory = "Output";
-var binDirectory = System.IO.Path.Combine(outputDirectory, "Plugins", "bin", configuration);
+var buildDirectory = System.IO.Path.Combine(outputDirectory, "Build", configuration);
+var binDirectory = System.IO.Path.Combine(buildDirectory, "Common", "bin");
 var stageDirectory = System.IO.Path.Combine(outputDirectory, "Stage", configuration);
 var stageGameDataDirectory = System.IO.Path.Combine(stageDirectory, "GameData");
 var stageAirplaneModeDirectory = System.IO.Path.Combine(stageGameDataDirectory, "AeroplaneMode");
 var deployAirplaneModeDirectory = System.IO.Path.Combine(buildConfiguration.KspDir, "GameData", "AeroplaneMode");
 var packageDirectory = System.IO.Path.Combine(outputDirectory, "Package", configuration);
+
+Task("Default")
+    .IsDependentOn("Stage")
+    .Does(() => { });
 
 Task("Init")
     .Does(() =>
@@ -44,10 +49,10 @@ Task("Init")
     }
 });
 
-Task("Clean")
+Task("CleanBuild")
     .Does(() =>
 {
-    CleanDirectories(new DirectoryPath[] { outputDirectory });
+    CleanDirectories(new DirectoryPath[] { buildDirectory });
 });
 
 Task("CleanStage")
@@ -69,7 +74,7 @@ Task("CleanDeploy")
 });
 
 Task("Build")
-    .IsDependentOn("Clean")
+    .IsDependentOn("CleanBuild")
     .IsDependentOn("Init")
     .Does(() =>
 {

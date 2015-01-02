@@ -12,8 +12,8 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <OutputPath>..\..\Output\Plugins\bin\$(Configuration)\</OutputPath>
-    <IntermediateOutputPath>..\..\Output\Plugins\obj\$(Configuration)\</IntermediateOutputPath>
+    <OutputPath>..\..\Output\Build\$(Configuration)\Common\bin\</OutputPath>
+    <IntermediateOutputPath>..\..\Output\Build\$(Configuration)\Common\obj\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
