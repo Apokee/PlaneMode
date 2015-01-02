@@ -2,7 +2,7 @@
 
 using YamlDotNet.Serialization;
 
-public T GetBuildConfiguration<T>()
+public T GetBuildConfiguration<T>() where T : new()
 {
 	var workingDirectorySegments = GetContext().Environment.WorkingDirectory.Segments;
 	var workingDirectoryName = workingDirectorySegments[workingDirectorySegments.Length - 1];
@@ -12,7 +12,7 @@ public T GetBuildConfiguration<T>()
 
 	if (configFile == null)
 	{
-		throw new Exception("Build configuration file does not exist.");
+		return new T();
 	}
 
 	return new Deserializer(ignoreUnmatched: true).Deserialize<T>(new StreamReader(configFile));

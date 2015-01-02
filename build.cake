@@ -9,6 +9,11 @@ public sealed class BuildConfiguration
 
     [YamlAlias("ksp_bin")]
     public string KspBin { get; set; }
+
+    public string KspPath(params string[] paths)
+    {
+        return KspDir == null ? null : System.IO.Path.Combine(KspDir, System.IO.Path.Combine(paths));
+    }
 }
 
 var target = Argument<string>("target", "Default");
@@ -22,7 +27,7 @@ var binDirectory = System.IO.Path.Combine(buildDirectory, "Common", "bin");
 var stageDirectory = System.IO.Path.Combine(outputDirectory, "Stage", configuration);
 var stageGameDataDirectory = System.IO.Path.Combine(stageDirectory, "GameData");
 var stageAirplaneModeDirectory = System.IO.Path.Combine(stageGameDataDirectory, "AeroplaneMode");
-var deployAirplaneModeDirectory = System.IO.Path.Combine(buildConfiguration.KspDir, "GameData", "AeroplaneMode");
+var deployAirplaneModeDirectory = buildConfiguration.KspPath("GameData", "AeroplaneMode");
 var packageDirectory = System.IO.Path.Combine(outputDirectory, "Package", configuration);
 
 Task("Default")
@@ -42,7 +47,7 @@ Task("Init")
         if (!File.Exists(System.IO.Path.Combine(kspLibDirectory, kspLib)))
         {
             CopyFileToDirectory(
-                System.IO.Path.Combine(buildConfiguration.KspDir, "KSP_Data", "Managed", kspLib),
+                buildConfiguration.KspPath("KSP_Data", "Managed", kspLib),
                 kspLibDirectory
             );
         }
