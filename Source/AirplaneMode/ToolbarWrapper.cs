@@ -32,7 +32,7 @@ using UnityEngine;
 
 
 // TODO: Change to your plugin's namespace here.
-namespace AeroplaneMode
+namespace AirplaneMode
  {
 
 
