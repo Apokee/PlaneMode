@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using AirplaneMode.Extensions;
 using UnityEngine;
 
@@ -19,6 +18,11 @@ namespace AirplaneMode
 
         private const string TexturePathAirplane = ModDirectory + "/" + "airplane_mode";
         private const string TexturePathRocket = ModDirectory + "/" + "rocket_mode";
+
+        private static readonly ScreenMessage ScreenMessageAirplane =
+            new ScreenMessage("Airplane Mode", ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER);
+        private static readonly ScreenMessage ScreenMessageRocket =
+            new ScreenMessage("Rocket Mode", ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER);
 
         #endregion
 
@@ -224,13 +228,16 @@ namespace AirplaneMode
 
         private void ShowMessageControlMode()
         {
+            ScreenMessages.RemoveMessage(ScreenMessageAirplane);
+            ScreenMessages.RemoveMessage(ScreenMessageRocket);
+
             switch (_controlMode)
             {
                 case ControlMode.Airplane:
-                    ScreenMessages.PostScreenMessage("Airplane Mode", ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER);
+                    ScreenMessages.PostScreenMessage(ScreenMessageAirplane);
                     break;
                 case ControlMode.Rocket:
-                    ScreenMessages.PostScreenMessage("Rocket Mode", ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER);
+                    ScreenMessages.PostScreenMessage(ScreenMessageRocket);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
