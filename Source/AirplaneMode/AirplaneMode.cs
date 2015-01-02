@@ -17,8 +17,8 @@ namespace AirplaneMode
         private const string TooltipToggleRocket = "Toggle Rocket Mode";
         private const float ScreenMessageDurationSeconds = 5;
 
-        private static readonly string TexturePathAirplane = Path.Combine(ModDirectory, "airplane_mode");
-        private static readonly string TexturePathRocket = Path.Combine(ModDirectory, "rocket_mode");
+        private const string TexturePathAirplane = ModDirectory + "/" + "airplane_mode";
+        private const string TexturePathRocket = ModDirectory + "/" + "rocket_mode";
 
         #endregion
 
