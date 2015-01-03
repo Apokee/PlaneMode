@@ -85,9 +85,7 @@ namespace AirplaneMode
 
             if (_currentVessel != null)
             {
-                // ReSharper disable once DelegateSubtraction
-                _currentVessel.OnFlyByWire -= OnFlyByWire;
-                _currentVessel = null;
+                OnVesselChange(null);
             }
         }
 
@@ -114,20 +112,20 @@ namespace AirplaneMode
 
         #region Event Handlers
 
-        private void OnVesselChange(Vessel data)
+        private void OnVesselChange(Vessel vessel)
         {
             if (_currentVessel != null)
             {
                 // ReSharper disable once DelegateSubtraction
-                _currentVessel.OnFlyByWire -= OnFlyByWire;
+                vessel.OnPreAutopilotUpdate -= OnPreAutopilotUpdate;
             }
 
-            if (data != null)
+            if (vessel != null)
             {
-                data.OnFlyByWire += OnFlyByWire;
+                vessel.OnPreAutopilotUpdate += OnPreAutopilotUpdate;
             }
 
-            _currentVessel = data;
+            _currentVessel = vessel;
         }
 
         private void OnControlModeButtonOnClick(ClickEvent e)
@@ -135,7 +133,7 @@ namespace AirplaneMode
             ToggleControlMode();
         }
 
-        private void OnFlyByWire(FlightCtrlState flightCtrlState)
+        private void OnPreAutopilotUpdate(FlightCtrlState flightCtrlState)
         {
             switch (_controlMode)
             {
@@ -151,7 +149,10 @@ namespace AirplaneMode
                         flightCtrlState.yaw = roll;
                         flightCtrlState.roll = yaw;
 
-                        if (_pitchInvert) flightCtrlState.pitch = -pitch;
+                        if (_pitchInvert)
+                        {
+                            flightCtrlState.pitch = -pitch;
+                        }
                     }
                     else
                     {
@@ -199,9 +200,11 @@ namespace AirplaneMode
 
         private bool ShouldOverrideControls(FlightCtrlState flightCtrlState)
         {
-            return (!flightCtrlState.pitch.IsZero() && _pitchInvert)
+            return _controlMode == ControlMode.Airplane && (
+                (!flightCtrlState.pitch.IsZero() && _pitchInvert)
                 || !flightCtrlState.roll.IsZero()
-                || !flightCtrlState.yaw.IsZero();
+                || !flightCtrlState.yaw.IsZero()
+            );
         }
 
         private void ToggleControlMode()
