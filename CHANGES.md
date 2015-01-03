@@ -1,6 +1,10 @@
 ## Unreleased
-##### Changes
-- Change "Aeroplane" to "Airplane".
+##### New
+- Use "Airplane" or "Aeroplane" depending on local culture. The following cultures will use "Aeroplane":
+  - en-AU
+  - en-NZ
+  - en-UK
+  - en-ZA
 
 ##### Fixes
 - Update Toolbar button tooltip when changing modes.
