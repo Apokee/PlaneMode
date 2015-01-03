@@ -7,8 +7,6 @@ namespace AirplaneMode
     [KSPAddon(KSPAddon.Startup.Flight, false)]
     public class AirplaneMode : MonoBehaviour
     {
-        // TODO: Check interaction with trim controls
-
         #region Constants
 
         private const string ModDirectory = "AirplaneMode";
