@@ -10,17 +10,13 @@ namespace AirplaneMode
         #region Constants
 
         private const string ModDirectory = "AirplaneMode";
-        private const string TooltipToggleAirplane = "Switch to Airplane Mode";
-        private const string TooltipToggleRocket = "Switch to Rocket Mode";
         private const float ScreenMessageDurationSeconds = 5;
 
         private const string TexturePathAirplane = ModDirectory + "/" + "airplane_mode";
         private const string TexturePathRocket = ModDirectory + "/" + "rocket_mode";
 
-        private static readonly ScreenMessage ScreenMessageAirplane =
-            new ScreenMessage("Airplane Mode", ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER);
-        private static readonly ScreenMessage ScreenMessageRocket =
-            new ScreenMessage("Rocket Mode", ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER);
+        private ScreenMessage _screenMessageAirplane;
+        private ScreenMessage _screenMessageRocket;
 
         #endregion
 
@@ -35,8 +31,8 @@ namespace AirplaneMode
 
         #region Toolbar
 
-        private readonly bool _toolbarInstalled;
-        private readonly IButton _controlModeButton;
+        private bool _toolbarInstalled;
+        private IButton _controlModeButton;
 
         #endregion
 
@@ -44,30 +40,6 @@ namespace AirplaneMode
 
         private Vessel _currentVessel;
         private ControlMode _controlMode;
-
-        #endregion
-
-        #region Constructor
-
-        public AirplaneMode()
-        {
-            if (ToolbarManager.ToolbarAvailable)
-            {
-                _toolbarInstalled = true;
-
-                _controlModeButton = ToolbarManager.Instance.add(GetType().Name, "_controlModeButton");
-                _controlModeButton.TexturePath = TexturePathRocket;
-                _controlModeButton.ToolTip = TooltipToggleAirplane;
-
-                _controlModeButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
-
-                _controlModeButton.OnClick += OnControlModeButtonOnClick;
-            }
-            else
-            {
-                _toolbarInstalled = false;
-            }
-        }
 
         #endregion
 
@@ -89,10 +61,9 @@ namespace AirplaneMode
 
         public void Start()
         {
-            _pitchInvert = false;
-            _controlMode = ControlMode.Rocket;
-
-            LoadKeyConfig();
+            InitializeConfiguration();
+            InitializeDefaults();
+            InitializeInterface();
 
             GameEvents.onVesselChange.Add(OnVesselChange);
             OnVesselChange(FlightGlobals.ActiveVessel);
@@ -172,7 +143,7 @@ namespace AirplaneMode
 
         #region Helpers
 
-        private void LoadKeyConfig()
+        private void InitializeConfiguration()
         {
             try
             {
@@ -198,6 +169,40 @@ namespace AirplaneMode
             {
                 Debug.Log("[AirplaneMode]: Config file loading failed: " + e);
             }
+        }
+
+        private void InitializeInterface()
+        {
+            if (ToolbarManager.ToolbarAvailable)
+            {
+                _toolbarInstalled = true;
+
+                _controlModeButton = ToolbarManager.Instance.add(GetType().Name, "_controlModeButton");
+                _controlModeButton.TexturePath = TexturePathRocket;
+                _controlModeButton.ToolTip = Strings.SwitchToAirplaneMode;
+
+                _controlModeButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
+
+                _controlModeButton.OnClick += OnControlModeButtonOnClick;
+            }
+            else
+            {
+                _toolbarInstalled = false;
+            }
+
+            _screenMessageAirplane = new ScreenMessage(
+                Strings.AirplaneMode, ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER
+            );
+
+            _screenMessageRocket = new ScreenMessage(
+                Strings.RocketMode, ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER
+            );
+        }
+
+        private void InitializeDefaults()
+        {
+            _pitchInvert = false;
+            _controlMode = ControlMode.Rocket;
         }
 
         private bool ShouldOverrideControls(FlightCtrlState flightCtrlState)
@@ -238,11 +243,11 @@ namespace AirplaneMode
                 {
                     case ControlMode.Airplane:
                         _controlModeButton.TexturePath = TexturePathAirplane;
-                        _controlModeButton.ToolTip = TooltipToggleRocket;
+                        _controlModeButton.ToolTip = Strings.SwitchToRocketMode;
                         break;
                     case ControlMode.Rocket:
                         _controlModeButton.TexturePath = TexturePathRocket;
-                        _controlModeButton.ToolTip = TooltipToggleAirplane;
+                        _controlModeButton.ToolTip = Strings.SwitchToAirplaneMode;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -252,16 +257,16 @@ namespace AirplaneMode
 
         private void ShowMessageControlMode()
         {
-            ScreenMessages.RemoveMessage(ScreenMessageAirplane);
-            ScreenMessages.RemoveMessage(ScreenMessageRocket);
+            ScreenMessages.RemoveMessage(_screenMessageAirplane);
+            ScreenMessages.RemoveMessage(_screenMessageRocket);
 
             switch (_controlMode)
             {
                 case ControlMode.Airplane:
-                    ScreenMessages.PostScreenMessage(ScreenMessageAirplane);
+                    ScreenMessages.PostScreenMessage(_screenMessageAirplane);
                     break;
                 case ControlMode.Rocket:
-                    ScreenMessages.PostScreenMessage(ScreenMessageRocket);
+                    ScreenMessages.PostScreenMessage(_screenMessageRocket);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
