@@ -142,9 +142,12 @@ namespace AirplaneMode
                     var roll = flightCtrlState.roll;
                     var pitch = flightCtrlState.pitch;
 
+                    // Overriding the SAS and Autopilot seems kind of hacky but it appears to work correctly
+
                     if (ShouldOverrideControls(flightCtrlState))
                     {
                         FlightGlobals.ActiveVessel.Autopilot.SAS.ManualOverride(true);
+                        FlightGlobals.ActiveVessel.Autopilot.Enabled = false;
 
                         flightCtrlState.yaw = roll;
                         flightCtrlState.roll = yaw;
@@ -157,6 +160,7 @@ namespace AirplaneMode
                     else
                     {
                         FlightGlobals.ActiveVessel.Autopilot.SAS.ManualOverride(false);
+                        FlightGlobals.ActiveVessel.Autopilot.Enabled = true;
                     }
                     break;
                 case ControlMode.Rocket:
@@ -200,11 +204,9 @@ namespace AirplaneMode
 
         private bool ShouldOverrideControls(FlightCtrlState flightCtrlState)
         {
-            return _controlMode == ControlMode.Airplane && (
-                (!flightCtrlState.pitch.IsZero() && _pitchInvert)
+            return (!flightCtrlState.pitch.IsZero() && _pitchInvert)
                 || !flightCtrlState.roll.IsZero()
-                || !flightCtrlState.yaw.IsZero()
-            );
+                || !flightCtrlState.yaw.IsZero();
         }
 
         private void ToggleControlMode()
