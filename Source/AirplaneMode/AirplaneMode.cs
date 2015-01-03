@@ -85,9 +85,7 @@ namespace AirplaneMode
 
             if (_currentVessel != null)
             {
-                // ReSharper disable once DelegateSubtraction
-                _currentVessel.OnFlyByWire -= OnFlyByWire;
-                _currentVessel = null;
+                OnVesselChange(null);
             }
         }
 
@@ -114,20 +112,20 @@ namespace AirplaneMode
 
         #region Event Handlers
 
-        private void OnVesselChange(Vessel data)
+        private void OnVesselChange(Vessel vessel)
         {
             if (_currentVessel != null)
             {
                 // ReSharper disable once DelegateSubtraction
-                _currentVessel.OnFlyByWire -= OnFlyByWire;
+                vessel.OnPreAutopilotUpdate -= OnPreAutopilotUpdate;
             }
 
-            if (data != null)
+            if (vessel != null)
             {
-                data.OnFlyByWire += OnFlyByWire;
+                vessel.OnPreAutopilotUpdate += OnPreAutopilotUpdate;
             }
 
-            _currentVessel = data;
+            _currentVessel = vessel;
         }
 
         private void OnControlModeButtonOnClick(ClickEvent e)
@@ -135,7 +133,7 @@ namespace AirplaneMode
             ToggleControlMode();
         }
 
-        private void OnFlyByWire(FlightCtrlState flightCtrlState)
+        private void OnPreAutopilotUpdate(FlightCtrlState flightCtrlState)
         {
             switch (_controlMode)
             {
@@ -144,18 +142,25 @@ namespace AirplaneMode
                     var roll = flightCtrlState.roll;
                     var pitch = flightCtrlState.pitch;
 
+                    // Overriding the SAS and Autopilot seems kind of hacky but it appears to work correctly
+
                     if (ShouldOverrideControls(flightCtrlState))
                     {
                         FlightGlobals.ActiveVessel.Autopilot.SAS.ManualOverride(true);
+                        FlightGlobals.ActiveVessel.Autopilot.Enabled = false;
 
                         flightCtrlState.yaw = roll;
                         flightCtrlState.roll = yaw;
 
-                        if (_pitchInvert) flightCtrlState.pitch = -pitch;
+                        if (_pitchInvert)
+                        {
+                            flightCtrlState.pitch = -pitch;
+                        }
                     }
                     else
                     {
                         FlightGlobals.ActiveVessel.Autopilot.SAS.ManualOverride(false);
+                        FlightGlobals.ActiveVessel.Autopilot.Enabled = true;
                     }
                     break;
                 case ControlMode.Rocket:
