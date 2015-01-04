@@ -296,6 +296,8 @@ namespace AirplaneMode
                         texture.LoadImage(File.ReadAllBytes(Path.Combine(
                             GetBaseDirectory().FullName, String.Format("Textures/{0}.png", modTexture)
                         )));
+
+                        TextureCache[modTexture] = texture;
                     }
                 }
             }
