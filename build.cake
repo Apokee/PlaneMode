@@ -112,7 +112,7 @@ Task("Stage")
         System.IO.Path.Combine(stageAirplaneModeDirectory, "Textures", "AppLauncherRocket.png")
     );
     CopyFileToDirectory("CHANGES.md", stageAirplaneModeDirectory);
-    CopyFileToDirectory("LICENSE", stageAirplaneModeDirectory);
+    CopyFileToDirectory("LICENSE.md", stageAirplaneModeDirectory);
     CopyFileToDirectory("README.md", stageAirplaneModeDirectory);
 });
 
