@@ -91,16 +91,28 @@ Task("Stage")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    var pluginsDirectory = System.IO.Path.Combine(stageAirplaneModeDirectory);
+    var pluginsDirectory = System.IO.Path.Combine(stageAirplaneModeDirectory, "Plugins");
+    var texturesDirectory = System.IO.Path.Combine(stageAirplaneModeDirectory, "Textures");
+
+    var artworkDirectory = GetNuGetPackageDirectory("Apokee.Artwork");
 
     CreateDirectory(stageGameDataDirectory);
     CreateDirectory(stageAirplaneModeDirectory);
     CreateDirectory(pluginsDirectory);
+    CreateDirectory(texturesDirectory);
 
     CopyFiles(binDirectory + "/*", pluginsDirectory);
     CopyFiles("GameData/*", stageAirplaneModeDirectory);
+    CopyFile(
+        System.IO.Path.Combine(artworkDirectory, "Content", "airplane-white-38x38.png"),
+        System.IO.Path.Combine(stageAirplaneModeDirectory, "Textures", "AppLauncherAirplane.png")
+    );
+    CopyFile(
+        System.IO.Path.Combine(artworkDirectory, "Content", "rocket-white-38x38.png"),
+        System.IO.Path.Combine(stageAirplaneModeDirectory, "Textures", "AppLauncherRocket.png")
+    );
     CopyFileToDirectory("CHANGES.md", stageAirplaneModeDirectory);
-    CopyFileToDirectory("LICENSE", stageAirplaneModeDirectory);
+    CopyFileToDirectory("LICENSE.md", stageAirplaneModeDirectory);
     CopyFileToDirectory("README.md", stageAirplaneModeDirectory);
 });
 
@@ -109,7 +121,7 @@ Task("Deploy")
     .IsDependentOn("CleanDeploy")
     .Does(() =>
 {
-    CopyFiles(stageAirplaneModeDirectory + "/*", deployAirplaneModeDirectory);
+    CopyDirectory(stageAirplaneModeDirectory, buildConfiguration.KspPath("GameData"));
 });
 
 Task("Run")
@@ -138,5 +150,16 @@ Task("Package")
 
     Zip(stageDirectory, packageFile);
 });
+
+public string GetNuGetPackageDirectory(string package)
+{
+    return Directory
+        .GetDirectories("Library/NuGet")
+        .Select(i => new DirectoryInfo(i))
+        .Where(i => i.Name.StartsWith(package))
+        .OrderByDescending(i => new Version(i.Name.Substring(package.Length + 1, i.Name.Length - package.Length - 1)))
+        .First()
+        .FullName;
+}
 
 RunTarget(target);
