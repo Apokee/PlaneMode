@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
 
-[assembly: AssemblyTitle("AirplaneMode")]
+[assembly: AssemblyTitle("PlaneMode")]
 [assembly: AssemblyDescription("Kerbal Space Program mod to swap roll/yaw axes")]
-[assembly: AssemblyProduct("AirplaneMode")]
-[assembly: AssemblyCompany("AirplaneMode Contributors")]
+[assembly: AssemblyProduct("PlaneMode")]
+[assembly: AssemblyCompany("PlaneMode Contributors")]
 [assembly: AssemblyCopyright("Copyright © 2014")]
 
 #if DEBUG

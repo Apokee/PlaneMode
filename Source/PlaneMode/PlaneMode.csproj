@@ -7,8 +7,8 @@
     <ProjectGuid>{26BDAE1E-3F27-4A7B-81A1-C461F96A3064}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AirplaneMode</RootNamespace>
-    <AssemblyName>AirplaneMode</AssemblyName>
+    <RootNamespace>PlaneMode</RootNamespace>
+    <AssemblyName>PlaneMode</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -45,7 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AirplaneMode.cs" />
+    <Compile Include="PlaneMode.cs" />
     <Compile Include="Strings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions\SingleExtensions.cs" />
