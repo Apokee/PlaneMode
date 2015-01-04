@@ -29,5 +29,5 @@ You can also inverse pitch control when switching modes by setting `pitch_invert
 This is a continuation of the [Aeroplane Mode](http://forum.kerbalspaceprogram.com/threads/90034) mod created by
 Phillip "Belisarius" Reiss.
 
-[build]: https://ci.appveyor.com/project/Apokee/airplanemode
-[build-badge]: https://ci.appveyor.com/api/projects/status/aerx2jybcsgbc1jl/branch/develop
+[build]: https://ci.appveyor.com/project/Apokee/planemode
+[build-badge]: https://ci.appveyor.com/api/projects/status/nlnofph4shq6t7ic/branch/develop
