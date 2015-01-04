@@ -2,19 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using AirplaneMode.Extensions;
+using PlaneMode.Extensions;
 using UnityEngine;
 
-namespace AirplaneMode
+namespace PlaneMode
 {
     [KSPAddon(KSPAddon.Startup.Flight, false)]
-    public class AirplaneMode : MonoBehaviour
+    public class PlaneMode : MonoBehaviour
     {
         #region Constants
 
         private const float ScreenMessageDurationSeconds = 5;
 
-        private ScreenMessage _screenMessageAirplane;
+        private ScreenMessage _screenMessagePlane;
         private ScreenMessage _screenMessageRocket;
 
         #endregion
@@ -100,7 +100,7 @@ namespace AirplaneMode
         {
             switch (_controlMode)
             {
-                case ControlMode.Airplane:
+                case ControlMode.Plane:
                     var yaw = flightCtrlState.yaw;
                     var roll = flightCtrlState.roll;
                     var pitch = flightCtrlState.pitch;
@@ -141,7 +141,7 @@ namespace AirplaneMode
         {
             try
             {
-                foreach (var config in GameDatabase.Instance.GetConfigNodes("airplane_mode_config"))
+                foreach (var config in GameDatabase.Instance.GetConfigNodes("plane_mode_config"))
                 {
                     if (config.HasNode("TOGGLE_CONTROL_MODE"))
                     {
@@ -161,7 +161,7 @@ namespace AirplaneMode
             }
             catch (Exception e)
             {
-                Debug.LogError("[AirplaneMode]: Config file loading failed: " + e);
+                Debug.LogError("[PlaneMode]: Config file loading failed: " + e);
             }
         }
 
@@ -178,8 +178,8 @@ namespace AirplaneMode
                 GetTexture(ModTexture.AppLauncherRocket)
             );
 
-            _screenMessageAirplane = new ScreenMessage(
-                Strings.AirplaneMode, ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER
+            _screenMessagePlane = new ScreenMessage(
+                Strings.PlaneMode, ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER
             );
 
             _screenMessageRocket = new ScreenMessage(
@@ -192,7 +192,7 @@ namespace AirplaneMode
             switch (appLauncherEvent)
             {
                 case AppLauncherEvent.OnTrue:
-                    SetControlMode(ControlMode.Airplane);
+                    SetControlMode(ControlMode.Plane);
                     break;
                 case AppLauncherEvent.OnFalse:
                     SetControlMode(ControlMode.Rocket);
@@ -228,11 +228,11 @@ namespace AirplaneMode
         {
             switch (_controlMode)
             {
-                case ControlMode.Airplane:
+                case ControlMode.Plane:
                     SetControlMode(ControlMode.Rocket);
                     break;
                 case ControlMode.Rocket:
-                    SetControlMode(ControlMode.Airplane);
+                    SetControlMode(ControlMode.Plane);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -257,8 +257,8 @@ namespace AirplaneMode
             {
                 switch(_controlMode)
                 {
-                    case ControlMode.Airplane:
-                        _appLauncherButton.SetTexture(GetTexture(ModTexture.AppLauncherAirplane));
+                    case ControlMode.Plane:
+                        _appLauncherButton.SetTexture(GetTexture(ModTexture.AppLauncherPlane));
                         _appLauncherButton.SetTrue(makeCall: false);
                         break;
                     case ControlMode.Rocket:
@@ -273,13 +273,13 @@ namespace AirplaneMode
 
         private void ShowMessageControlMode()
         {
-            ScreenMessages.RemoveMessage(_screenMessageAirplane);
+            ScreenMessages.RemoveMessage(_screenMessagePlane);
             ScreenMessages.RemoveMessage(_screenMessageRocket);
 
             switch (_controlMode)
             {
-                case ControlMode.Airplane:
-                    ScreenMessages.PostScreenMessage(_screenMessageAirplane);
+                case ControlMode.Plane:
+                    ScreenMessages.PostScreenMessage(_screenMessagePlane);
                     break;
                 case ControlMode.Rocket:
                     ScreenMessages.PostScreenMessage(_screenMessageRocket);
@@ -333,13 +333,13 @@ namespace AirplaneMode
 
         private enum ModTexture
         {
-            AppLauncherAirplane,
+            AppLauncherPlane,
             AppLauncherRocket,
         }
 
         private enum ControlMode
         {
-            Airplane,
+            Plane,
             Rocket,
         }
 

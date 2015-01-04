@@ -26,8 +26,8 @@ var buildDirectory = System.IO.Path.Combine(outputDirectory, "Build", configurat
 var binDirectory = System.IO.Path.Combine(buildDirectory, "Common", "bin");
 var stageDirectory = System.IO.Path.Combine(outputDirectory, "Stage", configuration);
 var stageGameDataDirectory = System.IO.Path.Combine(stageDirectory, "GameData");
-var stageAirplaneModeDirectory = System.IO.Path.Combine(stageGameDataDirectory, "AirplaneMode");
-var deployAirplaneModeDirectory = buildConfiguration.KspPath("GameData", "AirplaneMode");
+var stagePlaneModeDirectory = System.IO.Path.Combine(stageGameDataDirectory, "PlaneMode");
+var deployPlaneModeDirectory = buildConfiguration.KspPath("GameData", "PlaneMode");
 var packageDirectory = System.IO.Path.Combine(outputDirectory, "Package", configuration);
 
 Task("Default")
@@ -75,7 +75,7 @@ Task("CleanPackage")
 Task("CleanDeploy")
     .Does(() =>
 {
-    CleanDirectories(new DirectoryPath[] { deployAirplaneModeDirectory });
+    CleanDirectories(new DirectoryPath[] { deployPlaneModeDirectory });
 });
 
 Task("Build")
@@ -91,29 +91,29 @@ Task("Stage")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    var pluginsDirectory = System.IO.Path.Combine(stageAirplaneModeDirectory, "Plugins");
-    var texturesDirectory = System.IO.Path.Combine(stageAirplaneModeDirectory, "Textures");
+    var pluginsDirectory = System.IO.Path.Combine(stagePlaneModeDirectory, "Plugins");
+    var texturesDirectory = System.IO.Path.Combine(stagePlaneModeDirectory, "Textures");
 
     var artworkDirectory = GetNuGetPackageDirectory("Apokee.Artwork");
 
     CreateDirectory(stageGameDataDirectory);
-    CreateDirectory(stageAirplaneModeDirectory);
+    CreateDirectory(stagePlaneModeDirectory);
     CreateDirectory(pluginsDirectory);
     CreateDirectory(texturesDirectory);
 
     CopyFiles(binDirectory + "/*", pluginsDirectory);
-    CopyFiles("GameData/*", stageAirplaneModeDirectory);
+    CopyFiles("GameData/*", stagePlaneModeDirectory);
     CopyFile(
         System.IO.Path.Combine(artworkDirectory, "Content", "airplane-white-38x38.png"),
-        System.IO.Path.Combine(stageAirplaneModeDirectory, "Textures", "AppLauncherAirplane.png")
+        System.IO.Path.Combine(stagePlaneModeDirectory, "Textures", "AppLauncherPlane.png")
     );
     CopyFile(
         System.IO.Path.Combine(artworkDirectory, "Content", "rocket-white-38x38.png"),
-        System.IO.Path.Combine(stageAirplaneModeDirectory, "Textures", "AppLauncherRocket.png")
+        System.IO.Path.Combine(stagePlaneModeDirectory, "Textures", "AppLauncherRocket.png")
     );
-    CopyFileToDirectory("CHANGES.md", stageAirplaneModeDirectory);
-    CopyFileToDirectory("LICENSE.md", stageAirplaneModeDirectory);
-    CopyFileToDirectory("README.md", stageAirplaneModeDirectory);
+    CopyFileToDirectory("CHANGES.md", stagePlaneModeDirectory);
+    CopyFileToDirectory("LICENSE.md", stagePlaneModeDirectory);
+    CopyFileToDirectory("README.md", stagePlaneModeDirectory);
 });
 
 Task("Deploy")
@@ -121,7 +121,7 @@ Task("Deploy")
     .IsDependentOn("CleanDeploy")
     .Does(() =>
 {
-    CopyDirectory(stageAirplaneModeDirectory, buildConfiguration.KspPath("GameData"));
+    CopyDirectory(stagePlaneModeDirectory, buildConfiguration.KspPath("GameData"));
 });
 
 Task("Run")
@@ -139,13 +139,13 @@ Task("Package")
     .IsDependentOn("Stage")
     .Does(() =>
 {
-    var assemblyInfo = ParseAssemblyInfo("Source/AirplaneMode/Properties/AssemblyInfo.cs");
+    var assemblyInfo = ParseAssemblyInfo("Source/PlaneMode/Properties/AssemblyInfo.cs");
 
     CreateDirectory(packageDirectory);
 
     var packageFile = System.IO.Path.Combine(
         packageDirectory,
-        "AirplaneMode-" + assemblyInfo.AssemblyInformationalVersion + ".zip"
+        "PlaneMode-" + assemblyInfo.AssemblyInformationalVersion + ".zip"
     );
 
     Zip(stageDirectory, packageFile);

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AirplaneMode.Extensions
+namespace PlaneMode.Extensions
 {
     internal static class SingleExtensions
     {

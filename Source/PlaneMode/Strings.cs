@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace AirplaneMode
+namespace PlaneMode
 {
     internal static class Strings
     {
@@ -23,30 +23,16 @@ namespace AirplaneMode
 
         static Strings()
         {
-            Lookup.Add("Airplane", "en-AU", "Aeroplane");
-            Lookup.Add("Airplane", "en-NZ", "Aeroplane");
-            Lookup.Add("Airplane", "en-UK", "Aeroplane");
-            Lookup.Add("Airplane", "en-ZA", "Aeroplane");
-
-            Lookup.Add("Airplane Mode", "en-AU", "Aeroplane Mode");
-            Lookup.Add("Airplane Mode", "en-NZ", "Aeroplane Mode");
-            Lookup.Add("Airplane Mode", "en-UK", "Aeroplane Mode");
-            Lookup.Add("Airplane Mode", "en-ZA", "Aeroplane Mode");
-
-            Lookup.Add("Switch to Airplane Mode", "en-AU", "Switch to Aeroplane Mode");
-            Lookup.Add("Switch to Airplane Mode", "en-NZ", "Switch to Aeroplane Mode");
-            Lookup.Add("Switch to Airplane Mode", "en-UK", "Switch to Aeroplane Mode");
-            Lookup.Add("Switch to Airplane Mode", "en-ZA", "Switch to Aeroplane Mode");
         }
 
-        public static string Airplane
+        public static string Plane
         {
-            get { return Lookup["Airplane"]; }
+            get { return Lookup["Plane"]; }
         }
 
-        public static string AirplaneMode
+        public static string PlaneMode
         {
-            get { return Lookup["Airplane Mode"]; }
+            get { return Lookup["Plane Mode"]; }
         }
 
         public static string RocketMode
@@ -56,7 +42,7 @@ namespace AirplaneMode
 
         public static string SwitchToAirplaneMode
         {
-            get { return Lookup["Switch to Airplane Mode"]; }
+            get { return Lookup["Switch to Plane Mode"]; }
         }
 
         public static string SwitchToRocketMode
@@ -84,6 +70,7 @@ namespace AirplaneMode
                 LookupCulture = Thread.CurrentThread.CurrentUICulture.Name;
             }
 
+            // ReSharper disable once UnusedMember.Local
             public void Add(string phrase, string culture, string culturePhrase)
             {
                 _store.Add(Key(phrase, culture), culturePhrase);
