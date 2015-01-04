@@ -193,10 +193,10 @@ namespace AirplaneMode
             switch (appLauncherEvent)
             {
                 case AppLauncherEvent.OnTrue:
-                    ToggleControlMode();
+                    SetControlMode(ControlMode.Airplane);
                     break;
                 case AppLauncherEvent.OnFalse:
-                    ToggleControlMode();
+                    SetControlMode(ControlMode.Rocket);
                     break;
                 case AppLauncherEvent.OnHover:
                     break;
@@ -229,25 +229,29 @@ namespace AirplaneMode
             switch (_controlMode)
             {
                 case ControlMode.Airplane:
-                    _controlMode = ControlMode.Rocket;
+                    SetControlMode(ControlMode.Rocket);
                     break;
                 case ControlMode.Rocket:
-                    _controlMode = ControlMode.Airplane;
+                    SetControlMode(ControlMode.Airplane);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
 
+        private void SetControlMode(ControlMode newControlMode)
+        {
+            _controlMode = newControlMode;
             UpdateInterface();
         }
 
         private void UpdateInterface()
         {
-            UpdateToolbar();
+            UpdateAppLauncher();
             ShowMessageControlMode();
         }
 
-        private void UpdateToolbar()
+        private void UpdateAppLauncher()
         {
             if (_appLauncherButton != null)
             {
@@ -255,9 +259,11 @@ namespace AirplaneMode
                 {
                     case ControlMode.Airplane:
                         _appLauncherButton.SetTexture(GetTexture(ModTexture.AppLauncherAirplane));
+                        _appLauncherButton.SetTrue();
                         break;
                     case ControlMode.Rocket:
                         _appLauncherButton.SetTexture(GetTexture(ModTexture.AppLauncherRocket));
+                        _appLauncherButton.SetFalse();
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
