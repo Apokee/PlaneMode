@@ -46,19 +46,6 @@ namespace AirplaneMode
 
         #region MonoBehaviour
 
-        public void OnDestroy()
-        {
-            if (_appLauncherButton != null)
-            {
-                ApplicationLauncher.Instance.RemoveModApplication(_appLauncherButton);
-            }
-
-            if (_currentVessel != null)
-            {
-                OnVesselChange(null);
-            }
-        }
-
         public void Start()
         {
             InitializeConfiguration();
@@ -67,6 +54,17 @@ namespace AirplaneMode
 
             GameEvents.onVesselChange.Add(OnVesselChange);
             OnVesselChange(FlightGlobals.ActiveVessel);
+        }
+
+        public void OnDestroy()
+        {
+            if (_appLauncherButton != null)
+            {
+                ApplicationLauncher.Instance.RemoveModApplication(_appLauncherButton);
+            }
+
+            GameEvents.onVesselChange.Remove(OnVesselChange);
+            OnVesselChange(null);
         }
 
         public void Update()
@@ -86,7 +84,8 @@ namespace AirplaneMode
             if (_currentVessel != null)
             {
                 // ReSharper disable once DelegateSubtraction
-                vessel.OnPreAutopilotUpdate -= OnPreAutopilotUpdate;
+                _currentVessel.OnPreAutopilotUpdate -= OnPreAutopilotUpdate;
+
             }
 
             if (vessel != null)
@@ -162,7 +161,7 @@ namespace AirplaneMode
             }
             catch (Exception e)
             {
-                Debug.Log("[AirplaneMode]: Config file loading failed: " + e);
+                Debug.LogError("[AirplaneMode]: Config file loading failed: " + e);
             }
         }
 
@@ -203,6 +202,7 @@ namespace AirplaneMode
                 case AppLauncherEvent.OnHoverOut:
                     break;
                 case AppLauncherEvent.OnEnable:
+                    UpdateInterface();
                     break;
                 case AppLauncherEvent.OnDisable:
                     break;
@@ -259,11 +259,11 @@ namespace AirplaneMode
                 {
                     case ControlMode.Airplane:
                         _appLauncherButton.SetTexture(GetTexture(ModTexture.AppLauncherAirplane));
-                        _appLauncherButton.SetTrue();
+                        _appLauncherButton.SetTrue(makeCall: false);
                         break;
                     case ControlMode.Rocket:
                         _appLauncherButton.SetTexture(GetTexture(ModTexture.AppLauncherRocket));
-                        _appLauncherButton.SetFalse();
+                        _appLauncherButton.SetFalse(makeCall: false);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -340,7 +340,7 @@ namespace AirplaneMode
         private enum ControlMode
         {
             Airplane,
-            Rocket
+            Rocket,
         }
 
         #endregion
