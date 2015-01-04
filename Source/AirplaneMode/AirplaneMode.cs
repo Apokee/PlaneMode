@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using AirplaneMode.Extensions;
 using UnityEngine;
 
@@ -9,11 +12,7 @@ namespace AirplaneMode
     {
         #region Constants
 
-        private const string ModDirectory = "AirplaneMode";
         private const float ScreenMessageDurationSeconds = 5;
-
-        private const string TexturePathAirplane = ModDirectory + "/" + "airplane_mode";
-        private const string TexturePathRocket = ModDirectory + "/" + "rocket_mode";
 
         private ScreenMessage _screenMessageAirplane;
         private ScreenMessage _screenMessageRocket;
@@ -29,10 +28,12 @@ namespace AirplaneMode
 
         #endregion
 
-        #region Toolbar
+        #region Interface
 
-        private bool _toolbarInstalled;
-        private IButton _controlModeButton;
+        private static readonly object TextureCacheLock = new object();
+        private static readonly Dictionary<ModTexture, Texture> TextureCache = new Dictionary<ModTexture, Texture>();
+
+        private ApplicationLauncherButton _appLauncherButton;
 
         #endregion
 
@@ -47,10 +48,9 @@ namespace AirplaneMode
 
         public void OnDestroy()
         {
-            if (_toolbarInstalled)
+            if (_appLauncherButton != null)
             {
-                _controlModeButton.OnClick -= OnControlModeButtonOnClick;
-                _controlModeButton.Destroy();
+                ApplicationLauncher.Instance.RemoveModApplication(_appLauncherButton);
             }
 
             if (_currentVessel != null)
@@ -95,11 +95,6 @@ namespace AirplaneMode
             }
 
             _currentVessel = vessel;
-        }
-
-        private void OnControlModeButtonOnClick(ClickEvent e)
-        {
-            ToggleControlMode();
         }
 
         private void OnPreAutopilotUpdate(FlightCtrlState flightCtrlState)
@@ -173,22 +168,16 @@ namespace AirplaneMode
 
         private void InitializeInterface()
         {
-            if (ToolbarManager.ToolbarAvailable)
-            {
-                _toolbarInstalled = true;
-
-                _controlModeButton = ToolbarManager.Instance.add(GetType().Name, "_controlModeButton");
-                _controlModeButton.TexturePath = TexturePathRocket;
-                _controlModeButton.ToolTip = Strings.SwitchToAirplaneMode;
-
-                _controlModeButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
-
-                _controlModeButton.OnClick += OnControlModeButtonOnClick;
-            }
-            else
-            {
-                _toolbarInstalled = false;
-            }
+            _appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
+                () => OnAppLauncherEvent(AppLauncherEvent.OnTrue),
+                () => OnAppLauncherEvent(AppLauncherEvent.OnFalse),
+                () => OnAppLauncherEvent(AppLauncherEvent.OnHover),
+                () => OnAppLauncherEvent(AppLauncherEvent.OnHoverOut),
+                () => OnAppLauncherEvent(AppLauncherEvent.OnEnable),
+                () => OnAppLauncherEvent(AppLauncherEvent.OnDisable),
+                ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW,
+                GetTexture(ModTexture.AppLauncherRocket)
+            );
 
             _screenMessageAirplane = new ScreenMessage(
                 Strings.AirplaneMode, ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER
@@ -197,6 +186,29 @@ namespace AirplaneMode
             _screenMessageRocket = new ScreenMessage(
                 Strings.RocketMode, ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER
             );
+        }
+
+        private void OnAppLauncherEvent(AppLauncherEvent appLauncherEvent)
+        {
+            switch (appLauncherEvent)
+            {
+                case AppLauncherEvent.OnTrue:
+                    ToggleControlMode();
+                    break;
+                case AppLauncherEvent.OnFalse:
+                    ToggleControlMode();
+                    break;
+                case AppLauncherEvent.OnHover:
+                    break;
+                case AppLauncherEvent.OnHoverOut:
+                    break;
+                case AppLauncherEvent.OnEnable:
+                    break;
+                case AppLauncherEvent.OnDisable:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("appLauncherEvent");
+            }
         }
 
         private void InitializeDefaults()
@@ -237,17 +249,15 @@ namespace AirplaneMode
 
         private void UpdateToolbar()
         {
-            if (_toolbarInstalled)
+            if (_appLauncherButton != null)
             {
                 switch(_controlMode)
                 {
                     case ControlMode.Airplane:
-                        _controlModeButton.TexturePath = TexturePathAirplane;
-                        _controlModeButton.ToolTip = Strings.SwitchToRocketMode;
+                        _appLauncherButton.SetTexture(GetTexture(ModTexture.AppLauncherAirplane));
                         break;
                     case ControlMode.Rocket:
-                        _controlModeButton.TexturePath = TexturePathRocket;
-                        _controlModeButton.ToolTip = Strings.SwitchToAirplaneMode;
+                        _appLauncherButton.SetTexture(GetTexture(ModTexture.AppLauncherRocket));
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -273,9 +283,51 @@ namespace AirplaneMode
             }
         }
 
+        private static Texture GetTexture(ModTexture modTexture)
+        {
+            if (!TextureCache.ContainsKey(modTexture))
+            {
+                lock (TextureCacheLock)
+                {
+                    if (!TextureCache.ContainsKey(modTexture))
+                    {
+                        var texture = new Texture2D(38, 38, TextureFormat.RGBA32, false);
+
+                        texture.LoadImage(File.ReadAllBytes(Path.Combine(
+                            GetBaseDirectory().FullName, String.Format("Textures/{0}.png", modTexture)
+                        )));
+                    }
+                }
+            }
+
+            return TextureCache[modTexture];
+        }
+
+        private static DirectoryInfo GetBaseDirectory()
+        {
+            // ReSharper disable once AssignNullToNotNullAttribute
+            return new DirectoryInfo(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)).Parent;
+        }
+
         #endregion
 
         #region Nested Types
+
+        private enum AppLauncherEvent
+        {
+            OnTrue,
+            OnFalse,
+            OnHover,
+            OnHoverOut,
+            OnEnable,
+            OnDisable,
+        }
+
+        private enum ModTexture
+        {
+            AppLauncherAirplane,
+            AppLauncherRocket,
+        }
 
         private enum ControlMode
         {
