@@ -1,21 +1,33 @@
-## Overview
+# Airplane Mode [![Build status][build-badge]][build]
 
-This small plugin allows you to swap your roll and yaw axes in flight. This is a minor fix for joystick users like
-myself who found some of the other workarounds unweildy.
+**Airplane Mode** is a Kerbal Space Program mod that allows you to easily swap control input for roll/yaw while in
+flight. This is especially useful for joystick users who will typically want their joystick to control yaw for rockets
+but roll for aircraft.
 
-The default keyboard commands are:
+## Usage
 
-Hit the 'Scroll Lock' key to toggle control modes, or press and hold the 'Home' key to temporarily change control mode.
+To install, extract the contents of the archive to your KSP directory. This should create an `AirplaneMode` directory
+under the `<KSP>/GameData` directory. Configure your KSP control settings such that your roll/yaw controls are mapped
+to how you would like to use them while flying rockets.
 
-These keys can be rebound, and the plugin supports blizzy's toolbar if you have it installed, adding a small icon that
-can be clicked to toggle modes.
+Rocket mode is the default mode. You can engage airplane mode by pressing the Airplane Mode button in the application
+launcher. The button's icon will chage from a rocket to an aircraft to indicate the current mode.
 
-## Setup
+You can also press the `Scroll Lock` key to toggle modes or press and hold the `Home` key to change
+modes temporarily. These keys can be reassigned by editing the settings configuration file.
 
-1. Place the the 'AeroplaneMode' directory in your copy of KSP's GameData folder.
-2. If you want to change the keybindings, open 'settings.cfg' in a text editor, and change the "primary = ... " entry
-   for each command, to your prefered key. A list of key codes can be found here:
-   http://docs.unity3d.com/ScriptReference/KeyCode.html
-3. If you'd like pitch control to be reveresd when switching modes change "pitch_invert = false" to true.
-4. In KSP's control settings menu, bind your joystick axes the way you would like them to work when flying rockets.
-5. OPtional: bind the keys you set in step 2, to buttons on your joystick.
+## Configuration
+
+If you wish to change the key bindings as specified above, open the `<KSP>/GameData/AirplaneMode/settings.cfg` file in
+a text editor and change the `primary` entry for each command to the
+[key](http://docs.unity3d.com/ScriptReference/KeyCode.html) you wish to use.
+
+You can also inverse pitch control when switching modes by setting `pitch_invert` to `true`.
+
+## Acknowledgements
+
+This is a continuation of the [Aeroplane Mode](http://forum.kerbalspaceprogram.com/threads/90034) mod created by
+Phillip "Belisarius" Reiss.
+
+[build]: https://ci.appveyor.com/project/Apokee/airplanemode
+[build-badge]: https://ci.appveyor.com/api/projects/status/aerx2jybcsgbc1jl/branch/develop
