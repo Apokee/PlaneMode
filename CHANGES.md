@@ -8,6 +8,8 @@
 
 ##### Changes
 - Renamed from "Aeroplane Mode" to "Plane Mode".
+- Settings configuration has been changed slightly and toggle and hold keys have both been defaulted to None rather
+  than ScrollLock and Home.
 
 ##### Fixes
 - Handle switching vessels better.
