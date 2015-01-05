@@ -18,11 +18,8 @@ modes temporarily. These keys can be reassigned by editing the settings configur
 
 ## Configuration
 
-If you wish to change the key bindings as specified above, open the `<KSP>/GameData/PlaneMode/settings.cfg` file in a
-text editor and change the `primary` entry for each command to the
-[key](http://docs.unity3d.com/ScriptReference/KeyCode.html) you wish to use.
-
-You can also inverse pitch control when switching modes by setting `pitch_invert` to `true`.
+Plane Mode can be configured by creating a user settings file. Open
+`<KSP>/GameData/PlaneMode/Settings/DefaultSettings.cfg` in a texture editor for details and instructions.
 
 ## Acknowledgements
 
