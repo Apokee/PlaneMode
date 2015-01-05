@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using PlaneMode.Extensions;
 using UnityEngine;
 
 namespace PlaneMode
@@ -40,6 +39,7 @@ namespace PlaneMode
         #region State
 
         private Vessel _currentVessel;
+        private ModulePlaneMode _currentModulePlaneMode;
         private ControlMode _controlMode;
 
         #endregion
@@ -69,6 +69,24 @@ namespace PlaneMode
 
         public void Update()
         {
+            if (_currentModulePlaneMode != null)
+            {
+                var currentReferenceTransformPart = _currentVessel.GetReferenceTransformPart();
+
+                if (_currentModulePlaneMode.part != currentReferenceTransformPart)
+                {
+                    OnReferenceTransfomPartChange(currentReferenceTransformPart);
+                }
+            }
+
+            if (_currentModulePlaneMode != null)
+            {
+                if (_controlMode != _currentModulePlaneMode.ControlMode)
+                {
+                    SetControlMode(_currentModulePlaneMode.ControlMode);
+                }
+            }
+
             if (ToggleKey.GetKeyDown() || HoldKey.GetKeyDown() || HoldKey.GetKeyUp())                
             {
                 ToggleControlMode();
@@ -91,9 +109,38 @@ namespace PlaneMode
             if (vessel != null)
             {
                 vessel.OnPreAutopilotUpdate += OnPreAutopilotUpdate;
+
+                var referenceTransformPart = vessel.GetReferenceTransformPart();
+                if (referenceTransformPart != null)
+                {
+                    OnReferenceTransfomPartChange(referenceTransformPart);
+                }
+            }
+            else
+            {
+                OnReferenceTransfomPartChange(null);
             }
 
             _currentVessel = vessel;
+        }
+
+        // Psuedo-event from checking Update()
+        private void OnReferenceTransfomPartChange(Part part)
+        {
+            if (part != null)
+            {
+                var modulePlaneMode = part.FindModuleImplementing<ModulePlaneMode>();
+
+                if (modulePlaneMode != null)
+                {
+                    _currentModulePlaneMode = modulePlaneMode;
+                    SetControlMode(_currentModulePlaneMode.ControlMode);
+                }
+            }
+            else
+            {
+                _currentModulePlaneMode = null;
+            }
         }
 
         private void OnPreAutopilotUpdate(FlightCtrlState flightCtrlState)
@@ -242,6 +289,12 @@ namespace PlaneMode
         private void SetControlMode(ControlMode newControlMode)
         {
             _controlMode = newControlMode;
+
+            if (_currentModulePlaneMode != null)
+            {
+                _currentModulePlaneMode.SetControlMode(newControlMode);
+            }
+
             UpdateInterface();
         }
 
@@ -253,6 +306,14 @@ namespace PlaneMode
 
         private void UpdateAppLauncher()
         {
+            /* 
+             * There appears to be a slight issue when a vessel is first loaded whose initial reference transform part
+             * is in plane mode. The AppLauncher button's texture will be set to Plane but it's not 'enabled' as if
+             * SetTrue() was not called on it. Clicking the button again in this state keeps it in Plane mode and
+             * enables the button. It's as if the texture gets set correctly but the initial call to SetTrue() fails
+             * for some reason..
+             */
+
             if (_appLauncherButton != null)
             {
                 switch(_controlMode)
@@ -335,12 +396,6 @@ namespace PlaneMode
         {
             AppLauncherPlane,
             AppLauncherRocket,
-        }
-
-        private enum ControlMode
-        {
-            Plane,
-            Rocket,
         }
 
         #endregion
