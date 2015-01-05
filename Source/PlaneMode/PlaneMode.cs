@@ -47,8 +47,8 @@ namespace PlaneMode
 
         public void Start()
         {
-            InitializeSettings();
             InitializeDefaults();
+            InitializeSettings();
             InitializeInterface();
 
             GameEvents.onVesselChange.Add(OnVesselChange);
@@ -183,44 +183,6 @@ namespace PlaneMode
 
         #region Helpers
 
-        private void InitializeSettings()
-        {
-            foreach (var settings in GameDatabase.Instance.GetConfigNodes("PLANEMODE_DEFAULT_SETTINGS"))
-            {
-                ParseSettings(settings);
-            }
-
-            foreach (var settings in GameDatabase.Instance.GetConfigNodes("PLANEMODE_USER_SETTINGS"))
-            {
-                ParseSettings(settings);
-            }
-        }
-
-        private void ParseSettings(ConfigNode settings)
-        {
-            try
-            {
-                if (settings.HasNode("TOGGLE_CONTROL_MODE"))
-                {
-                    ToggleKey.Load(settings.GetNode("TOGGLE_CONTROL_MODE"));
-                }
-
-                if (settings.HasNode("HOLD_CONTROL_MODE"))
-                {
-                    HoldKey.Load(settings.GetNode("HOLD_CONTROL_MODE"));
-                }
-
-                if (settings.HasValue("pitchInvert"))
-                {
-                    _pitchInvert = bool.Parse(settings.GetValue("pitchInvert"));
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("[PlaneMode]: Settings loading failed: " + e);
-            }
-        }
-
         private void InitializeInterface()
         {
             _appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
@@ -271,13 +233,6 @@ namespace PlaneMode
         {
             _pitchInvert = false;
             _controlMode = ControlMode.Rocket;
-        }
-
-        private bool ShouldOverrideControls(FlightCtrlState flightCtrlState)
-        {
-            return (!flightCtrlState.pitch.IsZero() && _pitchInvert)
-                || !flightCtrlState.roll.IsZero()
-                || !flightCtrlState.yaw.IsZero();
         }
 
         private void ToggleControlMode()
@@ -356,6 +311,65 @@ namespace PlaneMode
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private static bool ShouldOverrideControls(FlightCtrlState flightCtrlState)
+        {
+            return (!flightCtrlState.pitch.IsZero() && _pitchInvert)
+                || !flightCtrlState.roll.IsZero()
+                || !flightCtrlState.yaw.IsZero();
+        }
+
+        private static void InitializeSettings()
+        {
+            foreach (var settings in GameDatabase.Instance.GetConfigNodes("PLANEMODE_DEFAULT_SETTINGS"))
+            {
+                ParseSettings(settings);
+            }
+
+            foreach (var settings in GameDatabase.Instance.GetConfigNodes("PLANEMODE_USER_SETTINGS"))
+            {
+                ParseSettings(settings);
+            }
+        }
+
+        private static void ParseSettings(ConfigNode settings)
+        {
+            try
+            {
+                if (settings.HasNode("TOGGLE_CONTROL_MODE"))
+                {
+                    ToggleKey.Load(settings.GetNode("TOGGLE_CONTROL_MODE"));
+                }
+
+                if (settings.HasNode("HOLD_CONTROL_MODE"))
+                {
+                    HoldKey.Load(settings.GetNode("HOLD_CONTROL_MODE"));
+                }
+
+                if (settings.HasValue("pitchInvert"))
+                {
+                    _pitchInvert = bool.Parse(settings.GetValue("pitchInvert"));
+                }
+
+                if (settings.HasValue("logLevel"))
+                {
+                    try
+                    {
+                        Log.Level = (LogLevel)Enum.Parse(
+                            typeof(LogLevel), settings.GetValue("logLevel"), ignoreCase: true
+                        );
+                    }
+                    catch (ArgumentException)
+                    {
+                        // Enum.TryParse() was only added with .NET 4
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("[PlaneMode]: Settings loading failed: " + e);
             }
         }
 

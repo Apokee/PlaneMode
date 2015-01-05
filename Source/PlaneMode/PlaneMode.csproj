@@ -46,6 +46,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ControlMode.cs" />
+    <Compile Include="Log.cs" />
+    <Compile Include="LogLevel.cs" />
     <Compile Include="ModulePlaneMode.cs" />
     <Compile Include="PlaneMode.cs" />
     <Compile Include="Strings.cs" />
