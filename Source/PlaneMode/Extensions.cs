@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace PlaneMode.Extensions
+namespace PlaneMode
 {
-    internal static class SingleExtensions
+    internal static class Extensions
     {
         public static bool IsZero(this float val)
         {

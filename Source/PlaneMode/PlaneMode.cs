@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using PlaneMode.Extensions;
 using UnityEngine;
 
 namespace PlaneMode
@@ -335,12 +334,6 @@ namespace PlaneMode
         {
             AppLauncherPlane,
             AppLauncherRocket,
-        }
-
-        private enum ControlMode
-        {
-            Plane,
-            Rocket,
         }
 
         #endregion
