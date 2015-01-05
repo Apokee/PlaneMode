@@ -17,6 +17,27 @@ install:
           Start-FileDownload "$kspLibsUrl/$kspLib" -FileName "$kspLibsDir/$kspLib"
         }
 
+before_build:
+  ps: |
+      $env:BUILD_VERSION = (cat VERSION)
+
 build_script:
     ps: |
         ./build -configuration="$env:CONFIGURATION"
+
+artifacts:
+  - path: 'Output\Package\$(configuration)\*.zip'
+    name: ZipPackage
+
+deploy:
+  - provider: GitHub
+    release: v$(BUILD_VERSION)
+    auth_token:
+      secure: EmsGaC6JRUeanKOhuSCl3ka+kK0czrAG7LHBaYONuUWfV/rIARRFkwoSKZiZHWTe
+    artifact: ZipPackage
+    draft: true
+    prerelease: false
+    on:
+      branch: master
+      configuration: Release
+      appveyor_repo_tag: true
