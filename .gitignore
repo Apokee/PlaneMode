@@ -1,0 +1,7 @@
+/Library/KSP/
+/Library/NuGet/
+/Output/
+
+*.suo
+*.user
+*.orig
