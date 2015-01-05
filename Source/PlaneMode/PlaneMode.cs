@@ -79,10 +79,22 @@ namespace PlaneMode
         {
             Log.Trace("Entering PlaneMode.Update()");
 
-            var currentReferenceTransformPart = _currentVessel.GetReferenceTransformPart();
-            if (_currentModulePlaneMode.part != currentReferenceTransformPart)
+            Part storedReferenceTransformPart = null;
+            Part currentReferenceTransformPart = null;
+
+            if (_currentModulePlaneMode != null)
             {
-                Log.Debug("_currentModulePlaneMode.part does not equal currentReferenceTransformPart");
+                storedReferenceTransformPart = _currentModulePlaneMode.part;
+            }
+
+            if (_currentVessel != null)
+            {
+                currentReferenceTransformPart = _currentVessel.GetReferenceTransformPart();
+            }
+
+            if (storedReferenceTransformPart != currentReferenceTransformPart)
+            {
+                Log.Debug("storedReferenceTransformPart does not equal currentReferenceTransformPart");
 
                 OnReferenceTransfomPartChange(currentReferenceTransformPart);
             }
@@ -216,7 +228,7 @@ namespace PlaneMode
                     Log.Trace("In Rocket ControlMode");
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    break;
             }
 
             Log.Trace("Leaving PlaneMode.OnPreAutopilotUpdate()");
@@ -320,30 +332,37 @@ namespace PlaneMode
             Log.Trace("Entering PlaneMode.SetControlMode()");
             Log.Debug("Setting control mode to {0}", newControlMode);
 
-            if (_controlMode != newControlMode)
+            if (newControlMode == ControlMode.Rocket || newControlMode == ControlMode.Plane)
             {
-                Log.Debug("New control mode, {0}, is different from current control mode, {1}. Updating.",
-                    newControlMode,
-                    _controlMode
-                );
-
-                _controlMode = newControlMode;
-
-                if (_currentModulePlaneMode != null)
+                if (_controlMode != newControlMode)
                 {
-                    Log.Debug("_currentModulePlaneMode is not null, updating its control mode");
+                    Log.Debug("New control mode, {0}, is different from current control mode, {1}. Updating.",
+                        newControlMode,
+                        _controlMode
+                    );
 
-                    _currentModulePlaneMode.SetControlMode(newControlMode);
+                    _controlMode = newControlMode;
+
+                    if (_currentModulePlaneMode != null)
+                    {
+                        Log.Debug("_currentModulePlaneMode is not null, updating its control mode");
+
+                        _currentModulePlaneMode.SetControlMode(newControlMode);
+                    }
+
+                    Log.Debug("Updating interface");
+                    UpdateInterface();
+
+                    Log.Info("Set control mode to {0}", newControlMode);
                 }
-
-                Log.Debug("Updating interface");
-                UpdateInterface();
-
-                Log.Info("Set control mode to {0}", newControlMode);
+                else
+                {
+                    Log.Debug("New control mode is same as current control mode, doing nothing");
+                }
             }
             else
             {
-                Log.Debug("New control mode is same as current control mode, doing nothing");
+                Log.Warning("Trying to set control mode to invalid mode: {0}", newControlMode);
             }
 
             Log.Trace("Leaving PlaneMode.SetControlMode()");
