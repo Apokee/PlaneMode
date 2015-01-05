@@ -20,10 +20,9 @@ namespace PlaneMode
 
         #region Configuration
 
-        private static readonly KeyBinding ToggleKey = new KeyBinding(KeyCode.ScrollLock);
-        private static readonly KeyBinding HoldKey = new KeyBinding(KeyCode.Home);
-
-        private bool _pitchInvert;
+        private static readonly KeyBinding ToggleKey = new KeyBinding(KeyCode.None);
+        private static readonly KeyBinding HoldKey = new KeyBinding(KeyCode.None);
+        private static bool _pitchInvert;
 
         #endregion
 
@@ -48,7 +47,7 @@ namespace PlaneMode
 
         public void Start()
         {
-            InitializeConfiguration();
+            InitializeSettings();
             InitializeDefaults();
             InitializeInterface();
 
@@ -184,31 +183,41 @@ namespace PlaneMode
 
         #region Helpers
 
-        private void InitializeConfiguration()
+        private void InitializeSettings()
+        {
+            foreach (var settings in GameDatabase.Instance.GetConfigNodes("PLANEMODE_DEFAULT_SETTINGS"))
+            {
+                ParseSettings(settings);
+            }
+
+            foreach (var settings in GameDatabase.Instance.GetConfigNodes("PLANEMODE_USER_SETTINGS"))
+            {
+                ParseSettings(settings);
+            }
+        }
+
+        private void ParseSettings(ConfigNode settings)
         {
             try
             {
-                foreach (var config in GameDatabase.Instance.GetConfigNodes("plane_mode_config"))
+                if (settings.HasNode("TOGGLE_CONTROL_MODE"))
                 {
-                    if (config.HasNode("TOGGLE_CONTROL_MODE"))
-                    {
-                        ToggleKey.Load(config.GetNode("TOGGLE_CONTROL_MODE"));
-                    }
+                    ToggleKey.Load(settings.GetNode("TOGGLE_CONTROL_MODE"));
+                }
 
-                    if (config.HasNode("HOLD_CONTROL_MODE"))
-                    {
-                        HoldKey.Load(config.GetNode("HOLD_CONTROL_MODE"));
-                    }
+                if (settings.HasNode("HOLD_CONTROL_MODE"))
+                {
+                    HoldKey.Load(settings.GetNode("HOLD_CONTROL_MODE"));
+                }
 
-                    if (config.HasValue("pitch_invert"))
-                    {
-                        _pitchInvert = bool.Parse(config.GetValue("pitch_invert"));
-                    }
+                if (settings.HasValue("pitchInvert"))
+                {
+                    _pitchInvert = bool.Parse(settings.GetValue("pitchInvert"));
                 }
             }
             catch (Exception e)
             {
-                Debug.LogError("[PlaneMode]: Config file loading failed: " + e);
+                Debug.LogError("[PlaneMode]: Settings loading failed: " + e);
             }
         }
 
