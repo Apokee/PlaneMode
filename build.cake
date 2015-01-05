@@ -16,7 +16,7 @@ public sealed class BuildConfiguration
     }
 }
 
-var target = Argument<string>("target", "Default");
+var target = Argument<string>("target", "Package");
 var configuration = Argument<string>("configuration", "Debug");
 
 var buildConfiguration = GetBuildConfiguration<BuildConfiguration>();
@@ -29,10 +29,6 @@ var stageGameDataDirectory = System.IO.Path.Combine(stageDirectory, "GameData");
 var stagePlaneModeDirectory = System.IO.Path.Combine(stageGameDataDirectory, "PlaneMode");
 var deployPlaneModeDirectory = buildConfiguration.KspPath("GameData", "PlaneMode");
 var packageDirectory = System.IO.Path.Combine(outputDirectory, "Package", configuration);
-
-Task("Default")
-    .IsDependentOn("Stage")
-    .Does(() => { });
 
 Task("Init")
     .Does(() =>
