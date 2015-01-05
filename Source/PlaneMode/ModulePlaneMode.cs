@@ -77,6 +77,11 @@ namespace PlaneMode
             }
         }
 
+        public void SetControlMode(ControlMode controlMode)
+        {
+            ControlMode = controlMode;
+        }
+
         // ReSharper disable once UnusedMethodReturnValue.Local
         private static bool TryParseControlMode(string s, out ControlMode result)
         {
