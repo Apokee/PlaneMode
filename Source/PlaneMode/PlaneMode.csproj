@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ControlMode.cs" />
+    <Compile Include="FlightInputManipulator.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="LogLevel.cs" />
     <Compile Include="ModulePlaneMode.cs" />
