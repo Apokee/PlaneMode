@@ -1,5 +1,9 @@
 ## Unreleased
 ##### New
+- Added setting to disable Application Launcher (stock toolbar) button.
+
+## v0.3.0
+##### New
 - Use stock Application Launcher.
 - Control mode is persisted with command pods, probe cores, and docking ports. The mode used is determined by whichever
   part is selected with the *Control From Here* button.
