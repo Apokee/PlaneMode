@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using PlaneMode.Manipulators;
 using UnityEngine;
 
 namespace PlaneMode
@@ -41,6 +42,8 @@ namespace PlaneMode
         private ModulePlaneMode _currentModulePlaneMode;
         private ControlMode _controlMode;
 
+        private readonly List<IManipulator> _manipulators = new List<IManipulator>();
+
         #endregion
 
         #region MonoBehaviour
@@ -52,6 +55,16 @@ namespace PlaneMode
             InitializeDefaults();
             InitializeSettings();
             InitializeInterface();
+
+            _manipulators.Add(new FlightInputManipulator(FlightInputHandler.fetch)
+            {
+                InvertPitch = _pitchInvert
+            });
+
+            _manipulators.Add(new GameSettingsManipulator
+            {
+                InvertPitch = _pitchInvert
+            });
 
             GameEvents.onVesselChange.Add(OnVesselChange);
             OnVesselChange(FlightGlobals.ActiveVessel);
@@ -71,6 +84,13 @@ namespace PlaneMode
 
             GameEvents.onVesselChange.Remove(OnVesselChange);
             OnVesselChange(null);
+
+            foreach (var manipulator in _manipulators)
+            {
+                manipulator.OnDestroy();
+            }
+
+            _manipulators.Clear();
 
             Log.Trace("Leaving PlaneMode.OnDestroy()");
         }
@@ -128,19 +148,8 @@ namespace PlaneMode
             Log.Trace("Entering PlaneMode.OnVesselChange()");
             Log.Debug("Vessel has changed");
 
-            if (_currentVessel != null)
-            {
-                Log.Debug("_currentVessel is not null, removing OnPreAutopilotUpdate event handler");
-
-                // ReSharper disable once DelegateSubtraction
-                _currentVessel.OnPreAutopilotUpdate -= OnPreAutopilotUpdate;
-            }
-
             if (vessel != null)
             {
-                Log.Debug("new vessel is not null, adding OnPreAutopilotUpdate event handler");
-                vessel.OnPreAutopilotUpdate += OnPreAutopilotUpdate;
-
                 Log.Debug("new vessel is not null, triggering OnReferenceTransfomPartChange event");
                 OnReferenceTransfomPartChange(vessel.GetReferenceTransformPart());
             }
@@ -182,56 +191,6 @@ namespace PlaneMode
             }
 
             Log.Trace("Leaving PlaneMode.OnReferenceTransfomPartChange()");
-        }
-
-        private void OnPreAutopilotUpdate(FlightCtrlState flightCtrlState)
-        {
-            Log.Trace("Entering PlaneMode.OnPreAutopilotUpdate()");
-
-            switch (_controlMode)
-            {
-                case ControlMode.Plane:
-                    Log.Trace("In Plane ControlMode");
-
-                    var yaw = flightCtrlState.yaw;
-                    var roll = flightCtrlState.roll;
-                    var pitch = flightCtrlState.pitch;
-
-                    // Overriding the SAS and Autopilot seems kind of hacky but it appears to work correctly
-
-                    if (ShouldOverrideControls(flightCtrlState))
-                    {
-                        Log.Trace("Overriding flight controls");
-
-                        FlightGlobals.ActiveVessel.Autopilot.SAS.ManualOverride(true);
-                        FlightGlobals.ActiveVessel.Autopilot.Enabled = false;
-
-                        Log.Trace("Swapping yaw and roll");
-                        flightCtrlState.yaw = roll;
-                        flightCtrlState.roll = yaw;
-
-                        if (_pitchInvert)
-                        {
-                            Log.Trace("Inverting pitch");
-                            flightCtrlState.pitch = -pitch;
-                        }
-                    }
-                    else
-                    {
-                        Log.Trace("Resetting flight controls");
-
-                        FlightGlobals.ActiveVessel.Autopilot.SAS.ManualOverride(false);
-                        FlightGlobals.ActiveVessel.Autopilot.Enabled = true;
-                    }
-                    break;
-                case ControlMode.Rocket:
-                    Log.Trace("In Rocket ControlMode");
-                    break;
-                default:
-                    break;
-            }
-
-            Log.Trace("Leaving PlaneMode.OnPreAutopilotUpdate()");
         }
 
         #endregion
@@ -300,8 +259,8 @@ namespace PlaneMode
         {
             Log.Trace("Entering PlaneMode.InitializeDefaults()");
 
-            _pitchInvert = false;
             _controlMode = ControlMode.Rocket;
+            _pitchInvert = false;
 
             Log.Trace("Leaving PlaneMode.InitializeDefaults()");
         }
@@ -340,6 +299,11 @@ namespace PlaneMode
                         newControlMode,
                         _controlMode
                     );
+
+                    foreach (var manipulator in _manipulators)
+                    {
+                        manipulator.SetControlMode(newControlMode);
+                    }
 
                     _controlMode = newControlMode;
 
@@ -442,13 +406,6 @@ namespace PlaneMode
             }
 
             Log.Trace("Leaving PlaneMode.ShowMessageControlMode()");
-        }
-
-        private static bool ShouldOverrideControls(FlightCtrlState flightCtrlState)
-        {
-            return (!flightCtrlState.pitch.IsZero() && _pitchInvert)
-                || !flightCtrlState.roll.IsZero()
-                || !flightCtrlState.yaw.IsZero();
         }
 
         private static void InitializeSettings()
