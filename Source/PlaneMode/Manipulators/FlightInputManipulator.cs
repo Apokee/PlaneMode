@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Reflection;
 
-namespace PlaneMode
+namespace PlaneMode.Manipulators
 {
-    internal sealed class FlightInputManipulator
+    internal sealed class FlightInputManipulator : IManipulator
     {
         private static readonly BindingFlags BindingFlags;
 
@@ -39,8 +39,6 @@ namespace PlaneMode
         private readonly bool _pitchAxisDockingInverted;
         // ReSharper restore PrivateFieldCanBeConvertedToLocalVariable
 
-        public ControlMode ControlMode { get; private set; }
-
         public bool InvertPitch { get; set; }
 
         static FlightInputManipulator()
@@ -51,7 +49,6 @@ namespace PlaneMode
         public FlightInputManipulator(FlightInputHandler handler)
         {
             _handler = handler;
-            ControlMode = ControlMode.Rocket;
 
             var handlerType = typeof(FlightInputHandler);
             var axisBindingType = typeof(UIModeAxisBindingSelector);
@@ -92,49 +89,49 @@ namespace PlaneMode
 
         public void SetControlMode(ControlMode newControlMode)
         {
-            if (ControlMode != newControlMode)
+            switch (newControlMode)
             {
-                switch(newControlMode)
-                {
-                    case ControlMode.Rocket:
-                        _yawLeftField.SetValue(_handler, _yawLeftBinding);
-                        _yawRightField.SetValue(_handler, _yawRightBinding);
-                        _yawAxisField.SetValue(_handler, _yawAxisBinding);
+                case ControlMode.Rocket:
+                    _yawLeftField.SetValue(_handler, _yawLeftBinding);
+                    _yawRightField.SetValue(_handler, _yawRightBinding);
+                    _yawAxisField.SetValue(_handler, _yawAxisBinding);
 
-                        _rollLeftField.SetValue(_handler, _rollLeftBinding);
-                        _rollRightField.SetValue(_handler, _rollRightBinding);
-                        _rollAxisField.SetValue(_handler, _rollAxisBinding);
+                    _rollLeftField.SetValue(_handler, _rollLeftBinding);
+                    _rollRightField.SetValue(_handler, _rollRightBinding);
+                    _rollAxisField.SetValue(_handler, _rollAxisBinding);
 
-                        _pitchUpField.SetValue(_handler, _pitchUpBinding);
-                        _pitchDownField.SetValue(_handler, _pitchDownBinding);
+                    _pitchUpField.SetValue(_handler, _pitchUpBinding);
+                    _pitchDownField.SetValue(_handler, _pitchDownBinding);
 
-                        _pitchAxisStagingBinding.inverted = _pitchAxisStagingInverted;
-                        _pitchAxisDockingBinding.inverted = _pitchAxisDockingInverted;
-                        break;
-                    case ControlMode.Plane:
-                        _yawLeftField.SetValue(_handler, _rollLeftBinding);
-                        _yawRightField.SetValue(_handler, _rollRightBinding);
-                        _yawAxisField.SetValue(_handler, _rollAxisBinding);
+                    _pitchAxisStagingBinding.inverted = _pitchAxisStagingInverted;
+                    _pitchAxisDockingBinding.inverted = _pitchAxisDockingInverted;
+                    break;
+                case ControlMode.Plane:
+                    _yawLeftField.SetValue(_handler, _rollLeftBinding);
+                    _yawRightField.SetValue(_handler, _rollRightBinding);
+                    _yawAxisField.SetValue(_handler, _rollAxisBinding);
 
-                        _rollLeftField.SetValue(_handler, _yawLeftBinding);
-                        _rollRightField.SetValue(_handler, _yawRightBinding);
-                        _rollAxisField.SetValue(_handler, _yawAxisBinding);
+                    _rollLeftField.SetValue(_handler, _yawLeftBinding);
+                    _rollRightField.SetValue(_handler, _yawRightBinding);
+                    _rollAxisField.SetValue(_handler, _yawAxisBinding);
 
-                        if (InvertPitch)
-                        {
-                            _pitchUpField.SetValue(_handler, _pitchDownBinding);
-                            _pitchDownField.SetValue(_handler, _pitchUpBinding);
+                    if (InvertPitch)
+                    {
+                        _pitchUpField.SetValue(_handler, _pitchDownBinding);
+                        _pitchDownField.SetValue(_handler, _pitchUpBinding);
 
-                            _pitchAxisStagingBinding.inverted = !_pitchAxisStagingInverted;
-                            _pitchAxisDockingBinding.inverted = !_pitchAxisDockingInverted;
-                        }
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException("newControlMode");
-                }
-
-                ControlMode = newControlMode;
+                        _pitchAxisStagingBinding.inverted = !_pitchAxisStagingInverted;
+                        _pitchAxisDockingBinding.inverted = !_pitchAxisDockingInverted;
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("newControlMode");
             }
+        }
+
+        public void OnDestroy()
+        {
+            SetControlMode(ControlMode.Rocket);
         }
     }
 }

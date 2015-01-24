@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using PlaneMode.Manipulators;
 using UnityEngine;
 
 namespace PlaneMode
@@ -39,8 +40,9 @@ namespace PlaneMode
 
         private Vessel _currentVessel;
         private ModulePlaneMode _currentModulePlaneMode;
+        private ControlMode _controlMode;
 
-        private FlightInputManipulator _flightInputManipulator;
+        private readonly List<IManipulator> _manipulators = new List<IManipulator>();
 
         #endregion
 
@@ -54,10 +56,15 @@ namespace PlaneMode
             InitializeSettings();
             InitializeInterface();
 
-            _flightInputManipulator = new FlightInputManipulator(FlightInputHandler.fetch)
+            _manipulators.Add(new FlightInputManipulator(FlightInputHandler.fetch)
             {
                 InvertPitch = _pitchInvert
-            };
+            });
+
+            _manipulators.Add(new GameSettingsManipulator
+            {
+                InvertPitch = _pitchInvert
+            });
 
             GameEvents.onVesselChange.Add(OnVesselChange);
             OnVesselChange(FlightGlobals.ActiveVessel);
@@ -77,6 +84,13 @@ namespace PlaneMode
 
             GameEvents.onVesselChange.Remove(OnVesselChange);
             OnVesselChange(null);
+
+            foreach (var manipulator in _manipulators)
+            {
+                manipulator.OnDestroy();
+            }
+
+            _manipulators.Clear();
 
             Log.Trace("Leaving PlaneMode.OnDestroy()");
         }
@@ -107,7 +121,7 @@ namespace PlaneMode
 
             if (_currentModulePlaneMode != null)
             {
-                if (_flightInputManipulator.ControlMode != _currentModulePlaneMode.ControlMode)
+                if (_controlMode != _currentModulePlaneMode.ControlMode)
                 {
                     Log.Debug("_controlMode does not equal _currentModulePlaneMode.ControlMode");
 
@@ -245,6 +259,7 @@ namespace PlaneMode
         {
             Log.Trace("Entering PlaneMode.InitializeDefaults()");
 
+            _controlMode = ControlMode.Rocket;
             _pitchInvert = false;
 
             Log.Trace("Leaving PlaneMode.InitializeDefaults()");
@@ -254,7 +269,7 @@ namespace PlaneMode
         {
             Log.Trace("Entering PlaneMode.ToggleControlMode()");
 
-            switch (_flightInputManipulator.ControlMode)
+            switch (_controlMode)
             {
                 case ControlMode.Plane:
                     Log.Debug("Toggling ControlMode from Plane to Rocket");
@@ -278,14 +293,19 @@ namespace PlaneMode
 
             if (newControlMode == ControlMode.Rocket || newControlMode == ControlMode.Plane)
             {
-                if (_flightInputManipulator.ControlMode != newControlMode)
+                if (_controlMode != newControlMode)
                 {
                     Log.Debug("New control mode, {0}, is different from current control mode, {1}. Updating.",
                         newControlMode,
-                        _flightInputManipulator.ControlMode
+                        _controlMode
                     );
 
-                    _flightInputManipulator.SetControlMode(newControlMode);
+                    foreach (var manipulator in _manipulators)
+                    {
+                        manipulator.SetControlMode(newControlMode);
+                    }
+
+                    _controlMode = newControlMode;
 
                     if (_currentModulePlaneMode != null)
                     {
@@ -338,7 +358,7 @@ namespace PlaneMode
 
             if (_appLauncherButton != null)
             {
-                switch (_flightInputManipulator.ControlMode)
+                switch (_controlMode)
                 {
                     case ControlMode.Plane:
                         Log.Debug("Updating Application Launcher button to Plane mode");
@@ -371,7 +391,7 @@ namespace PlaneMode
             ScreenMessages.RemoveMessage(_screenMessagePlane);
             ScreenMessages.RemoveMessage(_screenMessageRocket);
 
-            switch (_flightInputManipulator.ControlMode)
+            switch (_controlMode)
             {
                 case ControlMode.Plane:
                     Log.Debug("Showing Plane Mode message");
