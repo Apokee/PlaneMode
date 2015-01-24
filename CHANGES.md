@@ -1,5 +1,6 @@
 ## Unreleased
 ##### New
+- Added setting to disable Application Launcher (stock toolbar) button.
 - Docking controls are now supported.
 
 ##### Fixes
