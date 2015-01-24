@@ -1,6 +1,11 @@
 ## Unreleased
 ##### New
 - Added setting to disable Application Launcher (stock toolbar) button.
+- Docking controls are now supported.
+
+##### Fixes
+- Interaction with trim controls should now be fixed.
+- Interaction with SAS/Autopilot should now be fixed.
 
 ## v0.3.0
 ##### New
