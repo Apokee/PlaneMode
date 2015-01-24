@@ -23,6 +23,7 @@ namespace PlaneMode
         private static readonly KeyBinding ToggleKey = new KeyBinding(KeyCode.None);
         private static readonly KeyBinding HoldKey = new KeyBinding(KeyCode.None);
         private static bool _pitchInvert;
+        private static bool _enableAppLauncherButton;
 
         #endregion
 
@@ -242,17 +243,21 @@ namespace PlaneMode
         {
             Log.Trace("Entering PlaneMode.InitializeInterface()");
 
-            Log.Debug("Adding Application Launcher button");
-            _appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
-                () => OnAppLauncherEvent(AppLauncherEvent.OnTrue),
-                () => OnAppLauncherEvent(AppLauncherEvent.OnFalse),
-                () => OnAppLauncherEvent(AppLauncherEvent.OnHover),
-                () => OnAppLauncherEvent(AppLauncherEvent.OnHoverOut),
-                () => OnAppLauncherEvent(AppLauncherEvent.OnEnable),
-                () => OnAppLauncherEvent(AppLauncherEvent.OnDisable),
-                ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW,
-                GetTexture(ModTexture.AppLauncherRocket)
-            );
+            if (_enableAppLauncherButton)
+            {
+                Log.Debug("Adding Application Launcher button");
+
+                _appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
+                    () => OnAppLauncherEvent(AppLauncherEvent.OnTrue),
+                    () => OnAppLauncherEvent(AppLauncherEvent.OnFalse),
+                    () => OnAppLauncherEvent(AppLauncherEvent.OnHover),
+                    () => OnAppLauncherEvent(AppLauncherEvent.OnHoverOut),
+                    () => OnAppLauncherEvent(AppLauncherEvent.OnEnable),
+                    () => OnAppLauncherEvent(AppLauncherEvent.OnDisable),
+                    ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW,
+                    GetTexture(ModTexture.AppLauncherRocket)
+                );
+            }
 
             _screenMessagePlane = new ScreenMessage(
                 Strings.PlaneMode, ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER
@@ -382,7 +387,6 @@ namespace PlaneMode
         private void UpdateAppLauncher()
         {
             Log.Trace("Entering PlaneMode.UpdateAppLauncher()");
-            Log.Debug("Updating Application Launcher");
 
             /* 
              * There appears to be a slight issue when a vessel is first loaded whose initial reference transform part
@@ -394,6 +398,8 @@ namespace PlaneMode
 
             if (_appLauncherButton != null)
             {
+                Log.Debug("Updating Application Launcher");
+
                 switch (_controlMode)
                 {
                     case ControlMode.Plane:
@@ -409,10 +415,6 @@ namespace PlaneMode
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-            }
-            else
-            {
-                Log.Warning("_appLauncherButton is null");
             }
 
             Log.Trace("Leaving PlaneMode.UpdateAppLauncher()");
@@ -499,6 +501,13 @@ namespace PlaneMode
                     Log.Debug("Loading pitchInvert");
 
                     _pitchInvert = bool.Parse(settings.GetValue("pitchInvert"));
+                }
+
+                if (settings.HasValue("enableAppLauncherButton"))
+                {
+                    Log.Debug("Loading enableAppLauncherButton");
+
+                    _enableAppLauncherButton = bool.Parse(settings.GetValue("enableAppLauncherButton"));
                 }
 
                 if (settings.HasValue("logLevel"))
