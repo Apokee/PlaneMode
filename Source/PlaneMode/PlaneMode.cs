@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using PlaneMode.Manipulators;
 using UnityEngine;
 
 namespace PlaneMode
@@ -23,6 +24,7 @@ namespace PlaneMode
         private static readonly KeyBinding ToggleKey = new KeyBinding(KeyCode.None);
         private static readonly KeyBinding HoldKey = new KeyBinding(KeyCode.None);
         private static bool _pitchInvert;
+        private static bool _enableAppLauncherButton;
 
         #endregion
 
@@ -41,6 +43,8 @@ namespace PlaneMode
         private ModulePlaneMode _currentModulePlaneMode;
         private ControlMode _controlMode;
 
+        private readonly List<IManipulator> _manipulators = new List<IManipulator>();
+
         #endregion
 
         #region MonoBehaviour
@@ -52,6 +56,16 @@ namespace PlaneMode
             InitializeDefaults();
             InitializeSettings();
             InitializeInterface();
+
+            _manipulators.Add(new FlightInputManipulator(FlightInputHandler.fetch)
+            {
+                InvertPitch = _pitchInvert
+            });
+
+            _manipulators.Add(new GameSettingsManipulator
+            {
+                InvertPitch = _pitchInvert
+            });
 
             GameEvents.onVesselChange.Add(OnVesselChange);
             OnVesselChange(FlightGlobals.ActiveVessel);
@@ -71,6 +85,13 @@ namespace PlaneMode
 
             GameEvents.onVesselChange.Remove(OnVesselChange);
             OnVesselChange(null);
+
+            foreach (var manipulator in _manipulators)
+            {
+                manipulator.OnDestroy();
+            }
+
+            _manipulators.Clear();
 
             Log.Trace("Leaving PlaneMode.OnDestroy()");
         }
@@ -128,19 +149,8 @@ namespace PlaneMode
             Log.Trace("Entering PlaneMode.OnVesselChange()");
             Log.Debug("Vessel has changed");
 
-            if (_currentVessel != null)
-            {
-                Log.Debug("_currentVessel is not null, removing OnPreAutopilotUpdate event handler");
-
-                // ReSharper disable once DelegateSubtraction
-                _currentVessel.OnPreAutopilotUpdate -= OnPreAutopilotUpdate;
-            }
-
             if (vessel != null)
             {
-                Log.Debug("new vessel is not null, adding OnPreAutopilotUpdate event handler");
-                vessel.OnPreAutopilotUpdate += OnPreAutopilotUpdate;
-
                 Log.Debug("new vessel is not null, triggering OnReferenceTransfomPartChange event");
                 OnReferenceTransfomPartChange(vessel.GetReferenceTransformPart());
             }
@@ -184,56 +194,6 @@ namespace PlaneMode
             Log.Trace("Leaving PlaneMode.OnReferenceTransfomPartChange()");
         }
 
-        private void OnPreAutopilotUpdate(FlightCtrlState flightCtrlState)
-        {
-            Log.Trace("Entering PlaneMode.OnPreAutopilotUpdate()");
-
-            switch (_controlMode)
-            {
-                case ControlMode.Plane:
-                    Log.Trace("In Plane ControlMode");
-
-                    var yaw = flightCtrlState.yaw;
-                    var roll = flightCtrlState.roll;
-                    var pitch = flightCtrlState.pitch;
-
-                    // Overriding the SAS and Autopilot seems kind of hacky but it appears to work correctly
-
-                    if (ShouldOverrideControls(flightCtrlState))
-                    {
-                        Log.Trace("Overriding flight controls");
-
-                        FlightGlobals.ActiveVessel.Autopilot.SAS.ManualOverride(true);
-                        FlightGlobals.ActiveVessel.Autopilot.Enabled = false;
-
-                        Log.Trace("Swapping yaw and roll");
-                        flightCtrlState.yaw = roll;
-                        flightCtrlState.roll = yaw;
-
-                        if (_pitchInvert)
-                        {
-                            Log.Trace("Inverting pitch");
-                            flightCtrlState.pitch = -pitch;
-                        }
-                    }
-                    else
-                    {
-                        Log.Trace("Resetting flight controls");
-
-                        FlightGlobals.ActiveVessel.Autopilot.SAS.ManualOverride(false);
-                        FlightGlobals.ActiveVessel.Autopilot.Enabled = true;
-                    }
-                    break;
-                case ControlMode.Rocket:
-                    Log.Trace("In Rocket ControlMode");
-                    break;
-                default:
-                    break;
-            }
-
-            Log.Trace("Leaving PlaneMode.OnPreAutopilotUpdate()");
-        }
-
         #endregion
 
         #region Helpers
@@ -242,17 +202,21 @@ namespace PlaneMode
         {
             Log.Trace("Entering PlaneMode.InitializeInterface()");
 
-            Log.Debug("Adding Application Launcher button");
-            _appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
-                () => OnAppLauncherEvent(AppLauncherEvent.OnTrue),
-                () => OnAppLauncherEvent(AppLauncherEvent.OnFalse),
-                () => OnAppLauncherEvent(AppLauncherEvent.OnHover),
-                () => OnAppLauncherEvent(AppLauncherEvent.OnHoverOut),
-                () => OnAppLauncherEvent(AppLauncherEvent.OnEnable),
-                () => OnAppLauncherEvent(AppLauncherEvent.OnDisable),
-                ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW,
-                GetTexture(ModTexture.AppLauncherRocket)
-            );
+            if (_enableAppLauncherButton)
+            {
+                Log.Debug("Adding Application Launcher button");
+
+                _appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
+                    () => OnAppLauncherEvent(AppLauncherEvent.OnTrue),
+                    () => OnAppLauncherEvent(AppLauncherEvent.OnFalse),
+                    () => OnAppLauncherEvent(AppLauncherEvent.OnHover),
+                    () => OnAppLauncherEvent(AppLauncherEvent.OnHoverOut),
+                    () => OnAppLauncherEvent(AppLauncherEvent.OnEnable),
+                    () => OnAppLauncherEvent(AppLauncherEvent.OnDisable),
+                    ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW,
+                    GetTexture(ModTexture.AppLauncherRocket)
+                );
+            }
 
             _screenMessagePlane = new ScreenMessage(
                 Strings.PlaneMode, ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER
@@ -300,8 +264,8 @@ namespace PlaneMode
         {
             Log.Trace("Entering PlaneMode.InitializeDefaults()");
 
-            _pitchInvert = false;
             _controlMode = ControlMode.Rocket;
+            _pitchInvert = false;
 
             Log.Trace("Leaving PlaneMode.InitializeDefaults()");
         }
@@ -340,6 +304,11 @@ namespace PlaneMode
                         newControlMode,
                         _controlMode
                     );
+
+                    foreach (var manipulator in _manipulators)
+                    {
+                        manipulator.SetControlMode(newControlMode);
+                    }
 
                     _controlMode = newControlMode;
 
@@ -382,7 +351,6 @@ namespace PlaneMode
         private void UpdateAppLauncher()
         {
             Log.Trace("Entering PlaneMode.UpdateAppLauncher()");
-            Log.Debug("Updating Application Launcher");
 
             /* 
              * There appears to be a slight issue when a vessel is first loaded whose initial reference transform part
@@ -394,6 +362,8 @@ namespace PlaneMode
 
             if (_appLauncherButton != null)
             {
+                Log.Debug("Updating Application Launcher");
+
                 switch (_controlMode)
                 {
                     case ControlMode.Plane:
@@ -409,10 +379,6 @@ namespace PlaneMode
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-            }
-            else
-            {
-                Log.Warning("_appLauncherButton is null");
             }
 
             Log.Trace("Leaving PlaneMode.UpdateAppLauncher()");
@@ -442,13 +408,6 @@ namespace PlaneMode
             }
 
             Log.Trace("Leaving PlaneMode.ShowMessageControlMode()");
-        }
-
-        private static bool ShouldOverrideControls(FlightCtrlState flightCtrlState)
-        {
-            return (!flightCtrlState.pitch.IsZero() && _pitchInvert)
-                || !flightCtrlState.roll.IsZero()
-                || !flightCtrlState.yaw.IsZero();
         }
 
         private static void InitializeSettings()
@@ -499,6 +458,13 @@ namespace PlaneMode
                     Log.Debug("Loading pitchInvert");
 
                     _pitchInvert = bool.Parse(settings.GetValue("pitchInvert"));
+                }
+
+                if (settings.HasValue("enableAppLauncherButton"))
+                {
+                    Log.Debug("Loading enableAppLauncherButton");
+
+                    _enableAppLauncherButton = bool.Parse(settings.GetValue("enableAppLauncherButton"));
                 }
 
                 if (settings.HasValue("logLevel"))

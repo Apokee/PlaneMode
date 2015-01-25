@@ -1,5 +1,14 @@
 ## Unreleased
 ##### New
+- Added setting to disable Application Launcher (stock toolbar) button.
+- Docking controls are now supported.
+
+##### Fixes
+- Interaction with trim controls should now be fixed.
+- Interaction with SAS/Autopilot should now be fixed.
+
+## v0.3.0
+##### New
 - Use stock Application Launcher.
 - Control mode is persisted with command pods, probe cores, and docking ports. The mode used is determined by whichever
   part is selected with the *Control From Here* button.
