@@ -57,11 +57,6 @@ namespace PlaneMode
             InitializeSettings();
             InitializeInterface();
 
-            _manipulators.Add(new FlightInputManipulator(FlightInputHandler.fetch)
-            {
-                InvertPitch = _pitchInvert
-            });
-
             _manipulators.Add(new GameSettingsManipulator
             {
                 InvertPitch = _pitchInvert

@@ -1,4 +1,8 @@
 ## Unreleased
+#### Fixes
+- Kerbal Space Program v1.0 compatability
+
+## v0.4.0
 ##### New
 - Added setting to disable Application Launcher (stock toolbar) button.
 - Docking controls are now supported.
