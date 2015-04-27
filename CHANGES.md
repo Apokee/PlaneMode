@@ -1,6 +1,6 @@
 ## v0.4.1
 #### Fixes
-- Kerbal Space Program v1.0 compatability
+- Kerbal Space Program v1.0 compatibility
 
 ## v0.4.0
 ##### New
