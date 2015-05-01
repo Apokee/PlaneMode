@@ -23,7 +23,7 @@ before_build:
 
 build_script:
     ps: |
-        ./build -configuration="$env:CONFIGURATION"
+        ./build -noexperimental -configuration="$env:CONFIGURATION"
 
 artifacts:
   - path: 'Output\Package\$(configuration)\*.zip'
