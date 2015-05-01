@@ -7,7 +7,7 @@ configuration:
 install:
     ps: |
         $kspLibs = "Assembly-CSharp.dll", "Assembly-CSharp-firstpass.dll", "UnityEngine.dll"
-        $kspLibsUrl = "http://build.apokee.com/dependencies/ksp/1.0"
+        $kspLibsUrl = "http://build.apokee.com/dependencies/ksp/1.0.1"
         $kspLibsDir = "$env:APPVEYOR_BUILD_FOLDER/Library/KSP"
 
         New-Item $kspLibsDir -Type Directory -Force | Out-Null
