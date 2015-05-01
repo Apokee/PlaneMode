@@ -1,5 +1,9 @@
+## Unreleased
+##### Fixes
+- Initalize ControlMode to Rocket to avoid warning on vessel load
+
 ## v0.4.1
-#### Fixes
+####$ Fixes
 - Kerbal Space Program v1.0 compatibility
 
 ## v0.4.0
