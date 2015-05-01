@@ -8,8 +8,7 @@ namespace PlaneMode
         private const string ControlModeNodeKey = "controlMode";
 
         [KSPField(guiName = "Control Mode", guiActive = true, guiActiveEditor = true)]
-        public ControlMode ControlMode;
-
+        public ControlMode ControlMode = ControlMode.Rocket;
 
         public override void OnLoad(ConfigNode node)
         {
