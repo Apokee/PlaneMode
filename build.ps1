@@ -9,7 +9,7 @@ Param (
 # Globals
 # TODO: The experimental flag is necessary after upgrading to VS2015 until the final version of Roslyn is available
 # This should presumably occur once VS2015 is final
-$UseExperimental	= $true
+$UseExperimental	= $false
 $RootDir            = "$PSScriptRoot"
 $NugetDir           = "$RootDir/.nuget"
 $NugetExe           = "$NugetDir/NuGet.exe"
