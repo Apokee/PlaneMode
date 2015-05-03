@@ -40,7 +40,7 @@ Task("Init")
 
     foreach (var kspLib in kspLibs)
     {
-        if (!File.Exists(System.IO.Path.Combine(kspLibDirectory, kspLib)))
+        if (!FileExists(System.IO.Path.Combine(kspLibDirectory, kspLib)))
         {
             CopyFileToDirectory(
                 buildConfiguration.KspPath("KSP_Data", "Managed", kspLib),
@@ -98,8 +98,8 @@ Task("Stage")
     CreateDirectory(texturesDirectory);
 
     CopyFiles(binDirectory + "/*", pluginsDirectory);
-    CopyDirectory("Patches", stagePlaneModeDirectory);
-    CopyDirectory("Settings", stagePlaneModeDirectory);
+    CopyDirectory("Patches", stagePlaneModeDirectory + "/Patches");
+    CopyDirectory("Settings", stagePlaneModeDirectory + "/Settings");
     CopyFile(
         System.IO.Path.Combine(artworkDirectory, "Content", "airplane-white-38x38.png"),
         System.IO.Path.Combine(stagePlaneModeDirectory, "Textures", "AppLauncherPlane.png")
@@ -118,7 +118,7 @@ Task("Deploy")
     .IsDependentOn("CleanDeploy")
     .Does(() =>
 {
-    CopyDirectory(stagePlaneModeDirectory, buildConfiguration.KspPath("GameData"));
+    CopyDirectory(stagePlaneModeDirectory, buildConfiguration.KspPath("GameData") + "/PlaneMode");
 });
 
 Task("Run")
@@ -150,7 +150,7 @@ Task("Package")
 
 public string GetNuGetPackageDirectory(string package)
 {
-    return Directory
+    return System.IO.Directory
         .GetDirectories("Library/NuGet")
         .Select(i => new DirectoryInfo(i))
         .Where(i => i.Name.StartsWith(package))
