@@ -2,6 +2,7 @@
 ##### Changes
 - `PLANEMODE_USER_SETTINGS` is deprecated (although still supported), a Module Manager patch should now be used to
   modify settings.  An example patch is distributed in the `PlaneMode/Configuration` directory.
+- Clarified log message that made it appeared as if code was being executed more times than it was.
 
 ## v1.0.0
 ##### Fixes
