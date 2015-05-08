@@ -410,13 +410,14 @@ namespace PlaneMode
             Log.Trace("Entering PlaneMode.InitializeSettings()");
             Log.Debug("Initializing settings");
 
-            foreach (var settings in GameDatabase.Instance.GetConfigNodes("PLANEMODE_DEFAULT_SETTINGS"))
+            foreach (var settings in GameDatabase.Instance.GetConfigNodes("PLANEMODE"))
             {
                 Log.Debug("Found default settings");
 
                 ParseSettings(settings);
             }
 
+            // LEGACY: When breaking backward compatibility stop reading this node
             foreach (var settings in GameDatabase.Instance.GetConfigNodes("PLANEMODE_USER_SETTINGS"))
             {
                 Log.Debug("Found user settings");
