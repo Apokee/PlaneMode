@@ -7,6 +7,9 @@
   modify settings.  An example patch is distributed in the `PlaneMode/Configuration` directory.
 - Simplified the way textures are loaded.
 
+##### Fixes
+- Fix the display of the log level for debug messages.
+
 ## v1.0.0
 ##### Fixes
 - Initalize ControlMode to Rocket to avoid warning on vessel load
