@@ -99,7 +99,7 @@ Task("Stage")
 
     CopyFiles(binDirectory + "/*", pluginsDirectory);
     CopyDirectory("Patches", stagePlaneModeDirectory + "/Patches");
-    CopyDirectory("Settings", stagePlaneModeDirectory + "/Settings");
+    CopyDirectory("Configuration", stagePlaneModeDirectory + "/Configuration");
     CopyFile(
         System.IO.Path.Combine(artworkDirectory, "Content", "airplane-white-38x38.png"),
         System.IO.Path.Combine(stagePlaneModeDirectory, "Textures", "AppLauncherPlane.png")
