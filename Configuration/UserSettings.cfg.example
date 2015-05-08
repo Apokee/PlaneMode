@@ -1,0 +1,31 @@
+// This is an example file for how to modify PlaneMode's configuration using a Module Manager patch.
+// Remove the `.example` from the end of the filename and uncomment lines for settings you wish to change.
+
+@PLANEMODE:NEEDS[PlaneMode]
+{
+    // Key to toggle control mode
+    // Set `primary` to one of the KeyCodes specified here: http://docs.unity3d.com/ScriptReference/KeyCode.html
+    //@TOGGLE_CONTROL_MODE
+    //{
+    //    primary = None
+    //    secondary = None
+    //    group = 0
+    //    switchState = Any
+    //}
+
+    // Key to temporarily toggle control mode
+    // Set `primary` to one of the KeyCodes specified here: http://docs.unity3d.com/ScriptReference/KeyCode.html
+    //@HOLD_CONTROL_MODE
+    //{
+    //    primary = None
+    //    secondary = None
+    //    group = 0
+    //    switchState = Any
+    //}
+
+    // Set true to invert pitch in plane mode
+    //@pitchInvert = false
+
+    // Set false to disable the Application Launcher (stock toolbar) button from appearing
+    //@enableAppLauncherButton = true
+}
