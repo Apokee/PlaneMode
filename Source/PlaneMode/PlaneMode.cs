@@ -30,9 +30,6 @@ namespace PlaneMode
 
         #region Interface
 
-        private static readonly object TextureCacheLock = new object();
-        private static readonly Dictionary<ModTexture, Texture> TextureCache = new Dictionary<ModTexture, Texture>();
-
         private ApplicationLauncherButton _appLauncherButton;
 
         #endregion
@@ -493,30 +490,17 @@ namespace PlaneMode
             Log.Trace("Entering PlaneMode.GetTexture()");
             Log.Trace("Getting texture: {0}", modTexture);
 
-            if (!TextureCache.ContainsKey(modTexture))
-            {
-                lock (TextureCacheLock)
-                {
-                    if (!TextureCache.ContainsKey(modTexture))
-                    {
-                        Log.Debug("Loading texture: {0}", modTexture);
+            Log.Debug("Loading texture: {0}", modTexture);
 
-                        var texture = new Texture2D(38, 38, TextureFormat.RGBA32, false);
 
-                        texture.LoadImage(File.ReadAllBytes(Path.Combine(
-                            GetBaseDirectory().FullName, String.Format("Textures/{0}.png", modTexture)
-                        )));
+            var texture = GameDatabase.Instance.GetTexture(
+                GetBaseDirectory().Name + String.Format("/Textures/{0}", modTexture), false
+            );
 
-                        TextureCache[modTexture] = texture;
-
-                        Log.Debug("Loaded texture: {0}", modTexture);
-                    }
-                }
-            }
-
+            Log.Debug("Loaded texture: {0}", modTexture);
             Log.Trace("Leaving PlaneMode.GetTexture()");
 
-            return TextureCache[modTexture];
+            return texture;
         }
 
         private static DirectoryInfo GetBaseDirectory()
