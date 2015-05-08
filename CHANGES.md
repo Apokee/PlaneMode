@@ -1,3 +1,7 @@
+## Unreleased
+##### Fixes
+- Fix the display of the log level for debug messages.
+
 ## v1.0.0
 ##### Fixes
 - Initalize ControlMode to Rocket to avoid warning on vessel load
