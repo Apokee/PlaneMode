@@ -6,14 +6,6 @@ namespace PlaneMode
     {
         public static LogLevel Level { get; set; }
 
-        private static string Prefix
-        {
-            get
-            {
-                return String.Format("[PlaneMode] [{0}]: ", Level);
-            }
-        }
-
         static Log()
         {
             Level = LogLevel.Info;
@@ -23,7 +15,7 @@ namespace PlaneMode
         {
             if ((byte)LogLevel.Error <= (byte)Level)
             {
-                UnityEngine.Debug.LogError(Prefix + String.Format(format, args));
+                UnityEngine.Debug.LogError(Prefix(LogLevel.Error) + String.Format(format, args));
             }
         }
 
@@ -31,7 +23,7 @@ namespace PlaneMode
         {
             if ((byte)LogLevel.Warning <= (byte)Level)
             {
-                UnityEngine.Debug.LogWarning(Prefix + String.Format(format, args));
+                UnityEngine.Debug.LogWarning(Prefix(LogLevel.Warning) + String.Format(format, args));
             }
         }
 
@@ -39,7 +31,7 @@ namespace PlaneMode
         {
             if ((byte)LogLevel.Info <= (byte)Level)
             {
-                UnityEngine.Debug.Log(Prefix + String.Format(format, args));
+                UnityEngine.Debug.Log(Prefix(LogLevel.Info) + String.Format(format, args));
             }
         }
 
@@ -47,7 +39,7 @@ namespace PlaneMode
         {
             if ((byte)LogLevel.Debug <= (byte)Level)
             {
-                UnityEngine.Debug.Log(Prefix + String.Format(format, args));
+                UnityEngine.Debug.Log(Prefix(LogLevel.Debug) + String.Format(format, args));
             }
         }
 
@@ -55,8 +47,13 @@ namespace PlaneMode
         {
             if ((byte)LogLevel.Trace <= (byte)Level)
             {
-                UnityEngine.Debug.Log(Prefix + String.Format(format, args));
+                UnityEngine.Debug.Log(Prefix(LogLevel.Trace) + String.Format(format, args));
             }
+        }
+
+        private static string Prefix(LogLevel level)
+        {
+            return String.Format("[PlaneMode] [{0}]: ", level);
         }
     }
 }
