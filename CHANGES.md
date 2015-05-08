@@ -1,3 +1,7 @@
+## Unreleased
+##### New
+- Add `KSPAssembly` attribute to assembly.
+
 ## v1.0.0
 ##### Fixes
 - Initalize ControlMode to Rocket to avoid warning on vessel load
