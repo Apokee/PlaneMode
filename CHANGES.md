@@ -1,4 +1,4 @@
-## Unreleased
+## v1.1.0
 ##### New
 - Add `KSPAssembly` attribute to assembly.
 
