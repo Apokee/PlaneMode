@@ -1,3 +1,17 @@
+## v1.1.0
+##### New
+- Add `KSPAssembly` attribute to assembly.
+
+##### Changes
+- `PLANEMODE_USER_SETTINGS` is deprecated (although still supported), a Module Manager patch should now be used to
+  modify settings.  An example patch is distributed in the `PlaneMode/Configuration` directory.
+- Clarified log message that made it appeared as if code was being executed more times than it was.
+- Simplified the way textures are loaded.
+
+##### Fixes
+- Fix Plane mode settings being persisted in certain situations.
+- Fix the display of the log level for debug messages.
+
 ## v1.0.0
 ##### Fixes
 - Initalize ControlMode to Rocket to avoid warning on vessel load

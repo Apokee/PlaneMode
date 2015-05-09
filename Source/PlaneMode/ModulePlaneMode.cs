@@ -120,8 +120,7 @@ namespace PlaneMode
                     break;
             }
 
-            Log.Info("Changed control mode for {0} to {1}", part.partInfo.title, ControlMode);
-
+            Log.Info("Toggled control mode for {0} to {1}", part.partInfo.title, ControlMode);
             Log.Trace("Leaving ModulePlaneMode.ToggleControlMode()");
         }
 
