@@ -149,9 +149,11 @@ namespace PlaneMode
             {
                 Log.Info("GameSettings were saved while not in Rocket mode, swapping to Rocket mode and re-saving");
 
+                var origControlMode = _controlMode;
+
                 SetControlMode(ControlMode.Rocket);
                 GameSettings.SaveSettings();
-                SetControlMode(_controlMode);
+                SetControlMode(origControlMode);
 
                 Log.Info("GameSettings saved in Rocket mode, reverting to {0} mode", _controlMode);
             }
