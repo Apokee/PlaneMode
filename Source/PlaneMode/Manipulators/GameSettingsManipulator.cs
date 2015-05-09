@@ -76,7 +76,7 @@ namespace PlaneMode.Manipulators
 
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("newControlMode");
+                    throw new ArgumentOutOfRangeException(nameof(newControlMode));
             }
         }
 
