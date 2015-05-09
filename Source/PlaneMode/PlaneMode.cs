@@ -59,6 +59,8 @@ namespace PlaneMode
                 InvertPitch = _pitchInvert
             });
 
+            GameEvents.OnGameSettingsApplied.Add(OnGameSettingsApplied);
+
             GameEvents.onVesselChange.Add(OnVesselChange);
             OnVesselChange(FlightGlobals.ActiveVessel);
 
@@ -77,6 +79,8 @@ namespace PlaneMode
 
             GameEvents.onVesselChange.Remove(OnVesselChange);
             OnVesselChange(null);
+
+            GameEvents.OnGameSettingsApplied.Remove(OnGameSettingsApplied);
 
             foreach (var manipulator in _manipulators)
             {
@@ -135,6 +139,16 @@ namespace PlaneMode
         #endregion
 
         #region Event Handlers
+
+        private void OnGameSettingsApplied()
+        {
+            if (_controlMode != ControlMode.Rocket)
+            {
+                SetControlMode(ControlMode.Rocket);
+                GameSettings.SaveSettings();
+                SetControlMode(_controlMode);
+            }
+        }
 
         private void OnVesselChange(Vessel vessel)
         {
