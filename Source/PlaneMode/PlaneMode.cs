@@ -142,12 +142,21 @@ namespace PlaneMode
 
         private void OnGameSettingsApplied()
         {
+            Log.Trace("Entering PlaneMode.OnGameSettingsApplied()");
+            Log.Debug("GameSettings have been saved");
+
             if (_controlMode != ControlMode.Rocket)
             {
+                Log.Info("GameSettings were saved while not in Rocket mode, swapping to Rocket mode and re-saving");
+
                 SetControlMode(ControlMode.Rocket);
                 GameSettings.SaveSettings();
                 SetControlMode(_controlMode);
+
+                Log.Info("GameSettings saved in Rocket mode, reverting to {0} mode", _controlMode);
             }
+
+            Log.Trace("Leaving PlaneMode.OnGameSettingsApplied()");
         }
 
         private void OnVesselChange(Vessel vessel)
