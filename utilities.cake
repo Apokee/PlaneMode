@@ -42,7 +42,7 @@ public string GetSolution()
 public void PathMSBuild(FilePath solution, string configuration)
 {
     var exitCode = StartProcess(
-        Which("msbuild"),
+        @"C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe",
         new ProcessSettings
         {
             Arguments = String.Format(@"{0} /p:Configuration={1}", solution.FullPath, configuration)
