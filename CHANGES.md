@@ -9,6 +9,7 @@
 - Simplified the way textures are loaded.
 
 ##### Fixes
+- Fix Plane mode settings being persisted in certain situations.
 - Fix the display of the log level for debug messages.
 
 ## v1.0.0
