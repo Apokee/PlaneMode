@@ -1,6 +1,6 @@
 Param (
     [Parameter(Position = 0)]
-    [string]$Target,
+    [string]$Arg0,
 
     [Parameter(ValueFromRemainingArguments = $true)]
     [Object[]]$RemainingArgs
@@ -24,8 +24,12 @@ iex "NuGet install `"$PackagesConfigFile`" -OutputDirectory `"$PackagesDir`"" |
 # Build args
 $cakeArgs = @()
 
-if ($Target) {
-    $cakeArgs += "-target=$Target"
+if ($Arg0) {
+    if ($Arg0[0] -eq "-") {
+        $cakeArgs += "$Arg0"
+    } else {
+        $cakeArgs += "-target=$Arg0"
+    }
 }
 
 if ($UseExperimental) {
