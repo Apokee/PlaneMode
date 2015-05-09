@@ -39,6 +39,7 @@ namespace PlaneMode
         private Vessel _currentVessel;
         private ModulePlaneMode _currentModulePlaneMode;
         private ControlMode _controlMode;
+        private ControlMode? _prePauseControlMode;
 
         private readonly List<IManipulator> _manipulators = new List<IManipulator>();
 
@@ -59,6 +60,10 @@ namespace PlaneMode
                 InvertPitch = _pitchInvert
             });
 
+            GameEvents.onGamePause.Add(OnGamePause);
+            GameEvents.onGameUnpause.Add(OnGameUnpause);
+            GameEvents.OnGameSettingsApplied.Add(OnGameSettingsApplied);
+
             GameEvents.onVesselChange.Add(OnVesselChange);
             OnVesselChange(FlightGlobals.ActiveVessel);
 
@@ -77,6 +82,10 @@ namespace PlaneMode
 
             GameEvents.onVesselChange.Remove(OnVesselChange);
             OnVesselChange(null);
+
+            GameEvents.OnGameSettingsApplied.Remove(OnGameSettingsApplied);
+            GameEvents.onGameUnpause.Remove(OnGameUnpause);
+            GameEvents.onGamePause.Remove(OnGamePause);
 
             foreach (var manipulator in _manipulators)
             {
@@ -135,6 +144,57 @@ namespace PlaneMode
         #endregion
 
         #region Event Handlers
+
+        private void OnGamePause()
+        {
+            Log.Trace("Entering PlaneMode.OnGamePause()");
+
+            if (_controlMode != ControlMode.Rocket)
+            {
+                Log.Info("Game paused while not in Rocket mode, swapping to Rocket mode while paused");
+                _prePauseControlMode = _controlMode;
+                SetControlMode(ControlMode.Rocket, disableInterfaceUpdate: true);
+            }
+
+            Log.Trace("Leaving PlaneMode.OnGamePause()");
+        }
+
+        private void OnGameUnpause()
+        {
+            Log.Trace("Entering PlaneMode.OnGameUnpause()");
+
+            if (_prePauseControlMode != null && _prePauseControlMode != _controlMode)
+            {
+                SetControlMode(_prePauseControlMode.Value, disableInterfaceUpdate: true);
+
+                Log.Info("Game unpaused, reverted back to {0} mode", _prePauseControlMode.Value);
+
+                _prePauseControlMode = null;
+            }
+
+            Log.Trace("Leaving PlaneMode.OnGameUnpause()");
+        }
+
+        private void OnGameSettingsApplied()
+        {
+            Log.Trace("Entering PlaneMode.OnGameSettingsApplied()");
+            Log.Debug("GameSettings have been saved");
+
+            if (_controlMode != ControlMode.Rocket)
+            {
+                Log.Info("GameSettings were saved while not in Rocket mode, swapping to Rocket mode and re-saving");
+
+                var origControlMode = _controlMode;
+
+                SetControlMode(ControlMode.Rocket, disableInterfaceUpdate: true);
+                GameSettings.SaveSettings();
+                SetControlMode(origControlMode, disableInterfaceUpdate: true);
+
+                Log.Info("GameSettings saved in Rocket mode, reverted to {0} mode", _controlMode);
+            }
+
+            Log.Trace("Leaving PlaneMode.OnGameSettingsApplied()");
+        }
 
         private void OnVesselChange(Vessel vessel)
         {
@@ -283,7 +343,7 @@ namespace PlaneMode
             Log.Trace("Leaving PlaneMode.ToggleControlMode()");
         }
 
-        private void SetControlMode(ControlMode newControlMode)
+        private void SetControlMode(ControlMode newControlMode, bool disableInterfaceUpdate = false)
         {
             Log.Trace("Entering PlaneMode.SetControlMode()");
             Log.Debug("Setting control mode to {0}", newControlMode);
@@ -312,7 +372,11 @@ namespace PlaneMode
                     }
 
                     Log.Debug("Updating interface");
-                    UpdateInterface();
+
+                    if (!disableInterfaceUpdate)
+                    {
+                        UpdateInterface();
+                    }
 
                     Log.Info("Set control mode to {0}", newControlMode);
                 }
