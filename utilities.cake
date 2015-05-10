@@ -38,3 +38,61 @@ public string GetSolution()
         }
     }
 }
+
+public void PathMSBuild(FilePath solution, string configuration)
+{
+    var exitCode = StartProcess(
+        @"C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe",
+        new ProcessSettings
+        {
+            Arguments = String.Format(@"{0} /p:Configuration={1}", solution.FullPath, configuration)
+        }  
+    );
+    
+    if (exitCode != 0)
+    {
+        throw new Exception("msbuild build failed.");
+    }
+}
+
+public string Which(string executable)
+{
+    char[] seperators = { System.IO.Path.PathSeparator };
+
+    var envPath = Environment.GetEnvironmentVariable("PATH");
+    var envPathExt = Environment.GetEnvironmentVariable("PATHEXT");
+
+    var paths = envPath == null ?
+        new string[0] :
+        envPath.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
+
+    var pathExts = envPathExt == null ?
+        new string[0] :
+        envPathExt.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
+
+    foreach (var path in paths)
+    {
+        var testPath = System.IO.Path.Combine(path, executable);
+
+        /* We test the extensionful version first since it's not uncommon for multiplatform programs to ship with a
+         * Unix executable without an extension in the same directory as a Windows extension with an extension such as
+         * .cmd, .bat. In those cases trying to execute the extensionless version will fail on Windows.
+         */
+        foreach (var pathExt in pathExts)
+        {
+            var testPathExt = System.IO.Path.Combine(path, executable) + pathExt;
+
+            if (FileExists(testPathExt))
+            {
+                return testPathExt;
+            }
+        }
+
+        if (FileExists(testPath))
+        {
+            return testPath;
+        }
+    }
+
+    return null;
+}

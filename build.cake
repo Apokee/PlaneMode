@@ -79,7 +79,7 @@ Task("Build")
     .IsDependentOn("Init")
     .Does(() =>
 {
-    MSBuild(GetSolution(), settings => settings.SetConfiguration(configuration));
+    PathMSBuild(GetSolution(), configuration);
 });
 
 Task("Stage")

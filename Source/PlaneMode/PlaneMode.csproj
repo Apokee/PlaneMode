@@ -52,7 +52,6 @@
     <Compile Include="LogLevel.cs" />
     <Compile Include="ModulePlaneMode.cs" />
     <Compile Include="PlaneMode.cs" />
-    <Compile Include="Strings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions.cs" />
   </ItemGroup>
