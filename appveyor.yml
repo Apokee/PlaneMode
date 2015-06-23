@@ -43,7 +43,7 @@ after_build:
   ps: |
       $env:BUILD_VERSION = (cat Output/VERSION)
       $env:BUILD_PRELEASE = (cat Output/PRELEASE)
-      $env:BUILD_CHANGELOG = (cat Output/CHANGELOG).Replace("`r`n", "\n").Replace("`n", "\n").Replace("`r", "\n")
+      $env:BUILD_CHANGELOG = [System.String]::Join("\n", (cat Output/CHANGELOG))
 
       $versionMessage = "Version: $env:BUILD_VERSION"
 
