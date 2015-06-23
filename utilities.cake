@@ -1,5 +1,6 @@
 #r "Library/NuGet/YamlDotNet.3.6.0/lib/net35/YamlDotNet.dll"
 
+using System.Text.RegularExpressions;
 using YamlDotNet.Serialization;
 
 public T GetBuildConfiguration<T>() where T : new()
@@ -36,22 +37,6 @@ public string GetSolution()
         {
             throw new Exception("Multiple solutions found.");
         }
-    }
-}
-
-public void PathMSBuild(FilePath solution, string configuration)
-{
-    var exitCode = StartProcess(
-        @"C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe",
-        new ProcessSettings
-        {
-            Arguments = String.Format(@"{0} /p:Configuration={1}", solution.FullPath, configuration)
-        }  
-    );
-    
-    if (exitCode != 0)
-    {
-        throw new Exception("msbuild build failed.");
     }
 }
 
@@ -95,4 +80,166 @@ public string Which(string executable)
     }
 
     return null;
+}
+
+public string GetGitRevision(bool useShort)
+{
+    var git = Which("git");
+
+    if (git != null)
+    {
+        IEnumerable<string> output;
+
+        var shortOption = useShort ? "--short" : "";
+        StartProcess(git,
+            new ProcessSettings { RedirectStandardOutput = true, Arguments = $"rev-parse {shortOption} HEAD"},
+            out output
+        );
+
+        var outputList = output.ToList();
+        if (outputList.Count == 1)
+        {
+            return outputList[0];
+        }
+        else
+        {
+            throw new Exception("Could not read revision from git");
+        }
+    }
+
+    return null;
+}
+
+public SemVer GetVersion()
+{
+    return GetChangeLog().LatestVersion;
+}
+
+public ChangeLog GetChangeLog()
+{
+    return new ChangeLog("CHANGES.md");
+}
+
+public sealed class ChangeLog
+{
+    private static readonly Regex VersionPattern = new Regex(@"^## v(?<version>.+)$", RegexOptions.Compiled);
+
+    public SemVer LatestVersion { get; }
+    public string LatestChanges { get; }
+
+    public ChangeLog(string path)
+    {
+        var lines = System.IO.File.ReadAllLines(path);
+
+        var latestChanges = new List<string>();
+
+        if (lines.Any())
+        {
+            var versionMatch = VersionPattern.Match(lines[0]);
+
+            if (versionMatch.Success)
+            {
+                LatestVersion = new SemVer(versionMatch.Groups["version"].Value);
+            }
+            else
+            {
+                throw new Exception("Changes file is in incorrect format.");
+            }
+
+            foreach (var line in lines.Skip(1))
+            {
+                if (!VersionPattern.IsMatch(line))
+                {
+                    latestChanges.Add(line);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            LatestChanges = string.Join("\n", latestChanges.ToArray());
+        }
+        else
+        {
+            throw new Exception("Changes file is empty");
+        }
+    }
+}
+
+public sealed class SemVer
+{
+    private static readonly Regex Pattern = new Regex(
+        @"^(?<major>[1-9]\d*?|0)\.(?<minor>[1-9]\d*?|0)\.(?<patch>[1-9]\d*?|0)(?:-(?<pre>[\dA-Z-]+))?(?:\+(?<build>[\dA-Z-]+))?$",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled
+    );
+
+    private string _string;
+
+    public uint Major { get; }
+    public uint Minor { get; }
+    public uint Patch { get; }
+    public string Pre { get; }
+    public string Build { get; }
+
+    public SemVer(string s)
+    {
+        _string = s.Trim();
+
+        var match = Pattern.Match(_string);
+
+        if (match.Success)
+        {
+            Major = uint.Parse(match.Groups["major"].Value);
+            Minor = uint.Parse(match.Groups["minor"].Value);
+            Patch = uint.Parse(match.Groups["patch"].Value);
+
+            var preGroup = match.Groups["pre"];
+            if (preGroup.Success)
+            {
+                Pre = preGroup.Value;
+            }
+
+            var buildGroup = match.Groups["build"];
+            if (buildGroup.Success)
+            {
+                Build = buildGroup.Value;
+            }
+        }
+        else
+        {
+            throw new FormatException($"Unable to parse semantic version: {_string}");
+        }
+    }
+
+    public SemVer(uint major = 0, uint minor = 0, uint patch = 0, string pre = null, string build = null)
+    {
+        Major = major;
+        Minor = minor;
+        Patch = patch;
+        Pre = pre;
+        Build = build;
+
+        _string = $"{Major}.{Minor}.{Patch}";
+
+        if (pre != null)
+        {
+            _string += $"-{Pre}";
+        }
+
+        if (build != null)
+        {
+            _string += $"+{Build}";
+        }
+    }
+
+    public override string ToString()
+    {
+        return _string;
+    }
+
+    public static implicit operator string(SemVer version)
+    {
+        return version.ToString();
+    }
 }

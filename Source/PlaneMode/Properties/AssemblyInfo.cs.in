@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 [assembly: AssemblyTitle("PlaneMode")]
 [assembly: AssemblyDescription("Kerbal Space Program mod to swap roll/yaw axes")]
@@ -12,7 +12,7 @@ using System.Reflection;
 [assembly: AssemblyConfiguration("Release")]
 #endif
 
-[assembly: KSPAssembly("PlaneMode", 1, 1)]
-[assembly: AssemblyVersion("1.1")]
-[assembly: AssemblyFileVersion("1.1.1")]
-[assembly: AssemblyInformationalVersion("1.1.1-alpha+e69f2bb")]
+[assembly: KSPAssembly("PlaneMode", <%VERSION.MAJOR%>, <%VERSION.MINOR%>)]
+[assembly: AssemblyVersion("<%VERSION.MAJOR%>.<%VERSION.MINOR%>")]
+[assembly: AssemblyFileVersion("<%VERSION.MAJOR%>.<%VERSION.MINOR%>.<%VERSION.PATCH%>")]
+[assembly: AssemblyInformationalVersion("<%VERSION%>")]
