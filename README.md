@@ -27,6 +27,6 @@ Plane Mode can be configured by creating a user settings file. Open
 This is a continuation of the [Aeroplane Mode](http://forum.kerbalspaceprogram.com/threads/90034) mod created by
 Phillip "Belisarius" Reiss.
 
-[build]: https://ci.appveyor.com/project/Apokee/planemode
-[build-badge]: https://ci.appveyor.com/api/projects/status/nlnofph4shq6t7ic/branch/develop
+[build]: https://ci.appveyor.com/project/Apokee/planemode/branch/develop
+[build-badge]: https://ci.appveyor.com/api/projects/status/nlnofph4shq6t7ic/branch/develop?svg=true
 [module-manager]: http://forum.kerbalspaceprogram.com/threads/55219

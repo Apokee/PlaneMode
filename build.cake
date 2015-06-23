@@ -18,16 +18,20 @@ public sealed class BuildConfiguration
 
 var target = Argument<string>("target", "Package");
 var configuration = Argument<string>("configuration", "Debug");
+var release = Argument<bool>("release", false);
 
 var buildConfiguration = GetBuildConfiguration<BuildConfiguration>();
 
+var solution = GetSolution();
+
+var identifier = "PlaneMode";
 var outputDirectory = "Output";
 var buildDirectory = System.IO.Path.Combine(outputDirectory, "Build", configuration);
 var binDirectory = System.IO.Path.Combine(buildDirectory, "Common", "bin");
 var stageDirectory = System.IO.Path.Combine(outputDirectory, "Stage", configuration);
 var stageGameDataDirectory = System.IO.Path.Combine(stageDirectory, "GameData");
-var stagePlaneModeDirectory = System.IO.Path.Combine(stageGameDataDirectory, "PlaneMode");
-var deployPlaneModeDirectory = buildConfiguration.KspPath("GameData", "PlaneMode");
+var stagePlaneModeDirectory = System.IO.Path.Combine(stageGameDataDirectory, identifier);
+var deployPlaneModeDirectory = buildConfiguration.KspPath("GameData", identifier);
 var packageDirectory = System.IO.Path.Combine(outputDirectory, "Package", configuration);
 
 Task("Init")
@@ -74,12 +78,50 @@ Task("CleanDeploy")
     CleanDirectories(new DirectoryPath[] { deployPlaneModeDirectory });
 });
 
+Task("BuildVersionInfo")
+    .Does(() =>
+{
+    SemVer buildVersion;
+
+    var changeLog = GetChangeLog();
+    var version = changeLog.LatestVersion;
+    var rev = GetGitRevision(useShort: true);
+
+    if (rev != null && !release)
+    {
+        if (version.Build == null)
+        {
+            buildVersion = new SemVer(version.Major, version.Minor, version.Patch, version.Pre, rev);
+        }
+        else
+        {
+            throw new Exception("VERSION already contains build metadata");
+        }
+    }
+    else
+    {
+        buildVersion = version;
+    }
+
+    System.IO.File.WriteAllText("Output/VERSION", buildVersion);
+    System.IO.File.WriteAllText("Output/PRELEASE", (buildVersion.Pre != null).ToString().ToLower());
+    System.IO.File.WriteAllText("Output/CHANGELOG", changeLog.LatestChanges);
+});
+
+Task("BuildAssemblyInfo")
+    .Does(() =>
+{
+    BuildAssemblyInfo($"Source/{identifier}/Properties/AssemblyInfo.cs");
+});
+
 Task("Build")
     .IsDependentOn("CleanBuild")
     .IsDependentOn("Init")
+    .IsDependentOn("BuildVersionInfo")
+    .IsDependentOn("BuildAssemblyInfo")
     .Does(() =>
 {
-    PathMSBuild(GetSolution(), configuration);
+    MSBuild(solution, s => { s.Configuration = configuration; });
 });
 
 Task("Stage")
@@ -118,7 +160,7 @@ Task("Deploy")
     .IsDependentOn("CleanDeploy")
     .Does(() =>
 {
-    CopyDirectory(stagePlaneModeDirectory, buildConfiguration.KspPath("GameData") + "/PlaneMode");
+    CopyDirectory(stagePlaneModeDirectory, buildConfiguration.KspPath("GameData") + $"/{identifier}");
 });
 
 Task("Run")
@@ -136,19 +178,35 @@ Task("Package")
     .IsDependentOn("Stage")
     .Does(() =>
 {
-    var assemblyInfo = ParseAssemblyInfo("Source/PlaneMode/Properties/AssemblyInfo.cs");
-
     CreateDirectory(packageDirectory);
 
     var packageFile = System.IO.Path.Combine(
         packageDirectory,
-        "PlaneMode-" + assemblyInfo.AssemblyInformationalVersion + ".zip"
+        $"{identifier}-{GetBuildVersion()}.zip"
     );
 
     Zip(stageDirectory, packageFile);
 });
 
-public string GetNuGetPackageDirectory(string package)
+RunTarget(target);
+
+private void BuildAssemblyInfo(string file)
+{
+    var version = GetBuildVersion();
+
+    var output = TransformTextFile($"{file}.in")
+        .WithToken("VERSION", version)
+        .WithToken("VERSION.MAJOR", version.Major)
+        .WithToken("VERSION.MINOR", version.Minor)
+        .WithToken("VERSION.PATCH", version.Patch)
+        .WithToken("VERSION.PRE", version.Pre)
+        .WithToken("VERSION.BUILD", version.Build)
+        .ToString();
+
+    System.IO.File.WriteAllText(file, output);
+}
+
+private string GetNuGetPackageDirectory(string package)
 {
     return System.IO.Directory
         .GetDirectories("Library/NuGet")
@@ -159,4 +217,7 @@ public string GetNuGetPackageDirectory(string package)
         .FullName;
 }
 
-RunTarget(target);
+private SemVer GetBuildVersion()
+{
+    return new SemVer(System.IO.File.ReadAllText("Output/VERSION"));
+}
