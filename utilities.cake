@@ -1,4 +1,4 @@
-#r "Library/NuGet/YamlDotNet.3.6.0/lib/net35/YamlDotNet.dll"
+#r "Library/NuGet/YamlDotNet.3.6.1/lib/net35/YamlDotNet.dll"
 
 using System.Text.RegularExpressions;
 using YamlDotNet.Serialization;
