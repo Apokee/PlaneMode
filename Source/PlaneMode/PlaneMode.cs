@@ -19,15 +19,6 @@ namespace PlaneMode
 
         #endregion
 
-        #region Configuration
-
-        private static readonly KeyBinding ToggleKey = new KeyBinding(KeyCode.None);
-        private static readonly KeyBinding HoldKey = new KeyBinding(KeyCode.None);
-        private static bool _pitchInvert;
-        private static bool _enableAppLauncherButton;
-
-        #endregion
-
         #region Interface
 
         private ApplicationLauncherButton _appLauncherButton;
@@ -52,12 +43,11 @@ namespace PlaneMode
             Log.Trace("Entering PlaneMode.Start()");
 
             InitializeDefaults();
-            InitializeSettings();
             InitializeInterface();
 
             _manipulators.Add(new GameSettingsManipulator
             {
-                InvertPitch = _pitchInvert
+                InvertPitch = Config.Instance.PitchInvert
             });
 
             GameEvents.onGamePause.Add(OnGamePause);
@@ -131,7 +121,11 @@ namespace PlaneMode
                 }
             }
 
-            if (ToggleKey.GetKeyDown() || HoldKey.GetKeyDown() || HoldKey.GetKeyUp())                
+            if (
+                Config.Instance.ToggleControlMode.GetKeyDown() ||
+                Config.Instance.HoldControlMode.GetKeyDown() ||
+                Config.Instance.HoldControlMode.GetKeyUp()
+            )                
             {
                 Log.Debug("ToggleKey or HoldKey pressed");
 
@@ -254,7 +248,7 @@ namespace PlaneMode
         {
             Log.Trace("Entering PlaneMode.InitializeInterface()");
 
-            if (_enableAppLauncherButton)
+            if (Config.Instance.EnableAppLauncherButton)
             {
                 Log.Debug("Adding Application Launcher button");
 
@@ -317,7 +311,6 @@ namespace PlaneMode
             Log.Trace("Entering PlaneMode.InitializeDefaults()");
 
             _controlMode = ControlMode.Rocket;
-            _pitchInvert = false;
 
             Log.Trace("Leaving PlaneMode.InitializeDefaults()");
         }
@@ -464,89 +457,6 @@ namespace PlaneMode
             }
 
             Log.Trace("Leaving PlaneMode.ShowMessageControlMode()");
-        }
-
-        private static void InitializeSettings()
-        {
-            Log.Trace("Entering PlaneMode.InitializeSettings()");
-            Log.Debug("Initializing settings");
-
-            foreach (var settings in GameDatabase.Instance.GetConfigNodes("PLANEMODE"))
-            {
-                Log.Debug("Found default settings");
-
-                ParseSettings(settings);
-            }
-
-            // LEGACY: When breaking backward compatibility stop reading this node
-            foreach (var settings in GameDatabase.Instance.GetConfigNodes("PLANEMODE_USER_SETTINGS"))
-            {
-                Log.Debug("Found user settings");
-
-                ParseSettings(settings);
-            }
-
-            Log.Trace("Leaving PlaneMode.InitializeSettings()");
-        }
-
-        private static void ParseSettings(ConfigNode settings)
-        {
-            Log.Trace("Entering PlaneMode.ParseSettings()");
-            Log.Debug($"Parsing settings: {settings}");
-
-            try
-            {
-                if (settings.HasNode("TOGGLE_CONTROL_MODE"))
-                {
-                    Log.Debug("Loading TOGGLE_CONTROL_MODE");
-
-                    ToggleKey.Load(settings.GetNode("TOGGLE_CONTROL_MODE"));
-                }
-
-                if (settings.HasNode("HOLD_CONTROL_MODE"))
-                {
-                    Log.Debug("Loading HOLD_CONTROL_MODE");
-
-                    HoldKey.Load(settings.GetNode("HOLD_CONTROL_MODE"));
-                }
-
-                if (settings.HasValue("pitchInvert"))
-                {
-                    Log.Debug("Loading pitchInvert");
-
-                    _pitchInvert = bool.Parse(settings.GetValue("pitchInvert"));
-                }
-
-                if (settings.HasValue("enableAppLauncherButton"))
-                {
-                    Log.Debug("Loading enableAppLauncherButton");
-
-                    _enableAppLauncherButton = bool.Parse(settings.GetValue("enableAppLauncherButton"));
-                }
-
-                if (settings.HasValue("logLevel"))
-                {
-                    Log.Debug("Loading logLevel");
-
-                    var logLevelString = settings.GetValue("logLevel");
-
-                    try
-                    {
-                        Log.Level = (LogLevel)Enum.Parse(typeof(LogLevel), logLevelString, ignoreCase: true);
-                    }
-                    catch (ArgumentException)
-                    {
-                        // Enum.TryParse() was only added with .NET 4
-                        Log.Warning($"Failed to parse logLevel setting: {logLevelString}");
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Warning($"Settings loading failed: {e}");
-            }
-
-            Log.Trace("Leaving PlaneMode.ParseSettings()");
         }
 
         private static Texture GetTexture(ModTexture modTexture)
