@@ -39,6 +39,7 @@ namespace PlaneMode
         public ControlMode DefaultControlMode { get; }
         public ControlMode DefaultVabControlMode { get; }
         public ControlMode DefaultSphControlMode { get; }
+        public LogLevel LogLevel { get; }
 
         private Config(
             KeyBinding toggleControlMode,
@@ -47,7 +48,8 @@ namespace PlaneMode
             bool enableAppLauncherButton,
             ControlMode defaultControlMode,
             ControlMode defaultVabControlMode,
-            ControlMode defaultSphControlMode
+            ControlMode defaultSphControlMode,
+            LogLevel logLevel
         )
         {
             ToggleControlMode = toggleControlMode;
@@ -57,6 +59,7 @@ namespace PlaneMode
             DefaultControlMode = defaultControlMode;
             DefaultVabControlMode = defaultVabControlMode;
             DefaultSphControlMode = defaultSphControlMode;
+            LogLevel = logLevel;
         }
 
         private static Config TryParse()
@@ -68,6 +71,7 @@ namespace PlaneMode
             var defaultControlMode = ControlMode.Rocket;
             var defaultVabControlMode = ControlMode.Rocket;
             var defaultSphControlMode = ControlMode.Plane;
+            var logLevel = LogLevel.Info;
 
             // LEGACY: When breaking backwards compatibility change node name to "PLANE_MODE"
             var node = GameDatabase
@@ -95,6 +99,16 @@ namespace PlaneMode
                 if (node.HasValue("enableAppLauncherButton"))
                 {
                     enableAppLauncherButton = bool.Parse(node.GetValue("enableAppLauncherButton"));
+                }
+
+                if (node.HasValue("logLevel"))
+                {
+                    logLevel = (LogLevel)Enum.Parse(
+                        typeof(LogLevel),
+                        node.GetValue("logLevel"),
+                        // LGEACY: When breaking backwards compatiblity don't ignore case
+                        ignoreCase: true
+                    );
                 }
 
                 if (node.HasValue("defaultControlMode"))
@@ -149,6 +163,15 @@ namespace PlaneMode
                 {
                     enableAppLauncherButton = bool.Parse(legacyNode.GetValue("enableAppLauncherButton"));
                 }
+
+                if (legacyNode.HasValue("logLevel"))
+                {
+                    logLevel = (LogLevel)Enum.Parse(
+                        typeof(LogLevel),
+                        legacyNode.GetValue("logLevel"),
+                        ignoreCase: true
+                    );
+                }
             }
 
             return new Config(
@@ -158,7 +181,8 @@ namespace PlaneMode
                 enableAppLauncherButton,
                 defaultControlMode,
                 defaultVabControlMode,
-                defaultSphControlMode
+                defaultSphControlMode,
+                logLevel
             );
         }
     }
