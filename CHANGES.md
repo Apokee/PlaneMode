@@ -1,4 +1,7 @@
-## v1.1.1-alpha
+## v1.2.0-alpha
+##### New
+- Add `defaultControlMode`, `defaultVabControlMode`, `defaultSphControlMode` configuration settings to control default
+  control mode used for various situations.
 
 ## v1.1.0
 ##### New
