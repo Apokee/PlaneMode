@@ -58,37 +58,39 @@ namespace PlaneMode
                         if (vesselRotation == Vector3.up)
                         {
                             Log.Debug(
-                                $"Setting part {part.partInfo.title} control mode to Rocket because it's in the VAB"
+                                $"Setting part {part.partInfo.title} control mode to " +
+                                $"{Config.Instance.DefaultVabControlMode} because it's in the VAB"
                             );
 
-                            ControlMode = ControlMode.Rocket;
+                            ControlMode = Config.Instance.DefaultVabControlMode;
                         }
                         else if (vesselRotation == Vector3.forward)
                         {
                             Log.Debug(
-                                $"Setting part {part.partInfo.title} control mode to Plane because it's in the SPH"
+                                $"Setting part {part.partInfo.title} control mode to " +
+                                $"{Config.Instance.DefaultSphControlMode} because it's in the SPH"
                             );
 
-                            ControlMode = ControlMode.Plane;
+                            ControlMode = Config.Instance.DefaultSphControlMode;
                         }
                         else
                         {
                             Log.Debug(
-                                $"Setting part {part.partInfo.title} control mode to Rocket because we don't know " +
-                                "where it is"
+                                $"Setting part {part.partInfo.title} control mode to " +
+                                $"{Config.Instance.DefaultControlMode} because we don't know where it is"
                             );
 
-                            ControlMode = ControlMode.Rocket;
+                            ControlMode = Config.Instance.DefaultControlMode;
                         }
                     }
                     else
                     {
                         Log.Debug(
-                            $"Setting part {part.partInfo.title} control mode to Rocket because it's not in the " +
-                            "editor"
+                            $"Setting part {part.partInfo.title} control mode to {Config.Instance.DefaultControlMode} " +
+                            "because it's not in the editor"
                         );
 
-                        ControlMode = ControlMode.Rocket;
+                        ControlMode = Config.Instance.DefaultControlMode;
                     }
                     break;
             }

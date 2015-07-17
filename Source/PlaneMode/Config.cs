@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace PlaneMode
@@ -35,18 +36,27 @@ namespace PlaneMode
         public KeyBinding HoldControlMode { get; }
         public bool PitchInvert { get; }
         public bool EnableAppLauncherButton { get; }
+        public ControlMode DefaultControlMode { get; }
+        public ControlMode DefaultVabControlMode { get; }
+        public ControlMode DefaultSphControlMode { get; }
 
         private Config(
             KeyBinding toggleControlMode,
             KeyBinding holdControlMode,
             bool pitchInvert,
-            bool enableAppLauncherButton
+            bool enableAppLauncherButton,
+            ControlMode defaultControlMode,
+            ControlMode defaultVabControlMode,
+            ControlMode defaultSphControlMode
         )
         {
             ToggleControlMode = toggleControlMode;
             HoldControlMode = holdControlMode;
             PitchInvert = pitchInvert;
             EnableAppLauncherButton = enableAppLauncherButton;
+            DefaultControlMode = defaultControlMode;
+            DefaultVabControlMode = defaultVabControlMode;
+            DefaultSphControlMode = defaultSphControlMode;
         }
 
         private static Config TryParse()
@@ -55,6 +65,9 @@ namespace PlaneMode
             var holdControlMode = new KeyBinding(KeyCode.None);
             var pitchInvert = false;
             var enableAppLauncherButton = true;
+            var defaultControlMode = ControlMode.Rocket;
+            var defaultVabControlMode = ControlMode.Rocket;
+            var defaultSphControlMode = ControlMode.Plane;
 
             // LEGACY: When breaking backwards compatibility change node name to "PLANE_MODE"
             var node = GameDatabase
@@ -82,6 +95,30 @@ namespace PlaneMode
                 if (node.HasValue("enableAppLauncherButton"))
                 {
                     enableAppLauncherButton = bool.Parse(node.GetValue("enableAppLauncherButton"));
+                }
+
+                if (node.HasValue("defaultControlMode"))
+                {
+                    defaultControlMode = (ControlMode)Enum.Parse(
+                        typeof(ControlMode),
+                        node.GetValue("defaultControlMode")
+                    );
+                }
+
+                if (node.HasValue("defaultVabControlMode"))
+                {
+                    defaultVabControlMode = (ControlMode)Enum.Parse(
+                        typeof(ControlMode),
+                        node.GetValue("defaultVabControlMode")
+                    );
+                }
+
+                if (node.HasValue("defaultSphControlMode"))
+                {
+                    defaultSphControlMode = (ControlMode)Enum.Parse(
+                        typeof(ControlMode),
+                        node.GetValue("defaultSphControlMode")
+                    );
                 }
             }
 
@@ -114,7 +151,15 @@ namespace PlaneMode
                 }
             }
 
-            return new Config(toggleControlMode, holdControlMode, pitchInvert, enableAppLauncherButton);
+            return new Config(
+                toggleControlMode,
+                holdControlMode,
+                pitchInvert,
+                enableAppLauncherButton,
+                defaultControlMode,
+                defaultVabControlMode,
+                defaultSphControlMode
+            );
         }
     }
 }
