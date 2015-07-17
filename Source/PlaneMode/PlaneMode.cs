@@ -19,15 +19,6 @@ namespace PlaneMode
 
         #endregion
 
-        #region Configuration
-
-        private static readonly KeyBinding ToggleKey = new KeyBinding(KeyCode.None);
-        private static readonly KeyBinding HoldKey = new KeyBinding(KeyCode.None);
-        private static bool _pitchInvert;
-        private static bool _enableAppLauncherButton;
-
-        #endregion
-
         #region Interface
 
         private ApplicationLauncherButton _appLauncherButton;
@@ -52,12 +43,11 @@ namespace PlaneMode
             Log.Trace("Entering PlaneMode.Start()");
 
             InitializeDefaults();
-            InitializeSettings();
             InitializeInterface();
 
             _manipulators.Add(new GameSettingsManipulator
             {
-                InvertPitch = _pitchInvert
+                InvertPitch = Config.Instance.PitchInvert
             });
 
             GameEvents.onGamePause.Add(OnGamePause);
@@ -131,7 +121,11 @@ namespace PlaneMode
                 }
             }
 
-            if (ToggleKey.GetKeyDown() || HoldKey.GetKeyDown() || HoldKey.GetKeyUp())                
+            if (
+                Config.Instance.ToggleControlMode.GetKeyDown() ||
+                Config.Instance.HoldControlMode.GetKeyDown() ||
+                Config.Instance.HoldControlMode.GetKeyUp()
+            )                
             {
                 Log.Debug("ToggleKey or HoldKey pressed");
 
@@ -167,7 +161,7 @@ namespace PlaneMode
             {
                 SetControlMode(_prePauseControlMode.Value, disableInterfaceUpdate: true);
 
-                Log.Info("Game unpaused, reverted back to {0} mode", _prePauseControlMode.Value);
+                Log.Info($"Game unpaused, reverted back to {_prePauseControlMode.Value} mode");
 
                 _prePauseControlMode = null;
             }
@@ -190,7 +184,7 @@ namespace PlaneMode
                 GameSettings.SaveSettings();
                 SetControlMode(origControlMode, disableInterfaceUpdate: true);
 
-                Log.Info("GameSettings saved in Rocket mode, reverted to {0} mode", _controlMode);
+                Log.Info($"GameSettings saved in Rocket mode, reverted to {_controlMode} mode");
             }
 
             Log.Trace("Leaving PlaneMode.OnGameSettingsApplied()");
@@ -254,7 +248,7 @@ namespace PlaneMode
         {
             Log.Trace("Entering PlaneMode.InitializeInterface()");
 
-            if (_enableAppLauncherButton)
+            if (Config.Instance.EnableAppLauncherButton)
             {
                 Log.Debug("Adding Application Launcher button");
 
@@ -271,11 +265,11 @@ namespace PlaneMode
             }
 
             _screenMessagePlane = new ScreenMessage(
-                Strings.PlaneMode, ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER
+                "Plane Mode", ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER
             );
 
             _screenMessageRocket = new ScreenMessage(
-                Strings.RocketMode, ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER
+                "Rocket Mode", ScreenMessageDurationSeconds, ScreenMessageStyle.LOWER_CENTER
             );
 
             Log.Trace("Leaving PlaneMode.InitializeInterface()");
@@ -306,7 +300,7 @@ namespace PlaneMode
                 case AppLauncherEvent.OnDisable:
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("appLauncherEvent");
+                    throw new ArgumentOutOfRangeException(nameof(appLauncherEvent));
             }
 
             Log.Trace("Leaving PlaneMode.OnAppLauncherEvent()");
@@ -317,7 +311,6 @@ namespace PlaneMode
             Log.Trace("Entering PlaneMode.InitializeDefaults()");
 
             _controlMode = ControlMode.Rocket;
-            _pitchInvert = false;
 
             Log.Trace("Leaving PlaneMode.InitializeDefaults()");
         }
@@ -346,15 +339,15 @@ namespace PlaneMode
         private void SetControlMode(ControlMode newControlMode, bool disableInterfaceUpdate = false)
         {
             Log.Trace("Entering PlaneMode.SetControlMode()");
-            Log.Debug("Setting control mode to {0}", newControlMode);
+            Log.Debug($"Setting control mode to {newControlMode}");
 
             if (newControlMode == ControlMode.Rocket || newControlMode == ControlMode.Plane)
             {
                 if (_controlMode != newControlMode)
                 {
-                    Log.Debug("New control mode, {0}, is different from current control mode, {1}. Updating.",
-                        newControlMode,
-                        _controlMode
+                    Log.Debug(
+                        $"New control mode, {newControlMode}, is different from current control mode, " +
+                        $"{_controlMode}. Updating."
                     );
 
                     foreach (var manipulator in _manipulators)
@@ -378,7 +371,7 @@ namespace PlaneMode
                         UpdateInterface();
                     }
 
-                    Log.Info("Set control mode to {0}", newControlMode);
+                    Log.Info($"Set control mode to {newControlMode}");
                 }
                 else
                 {
@@ -387,7 +380,7 @@ namespace PlaneMode
             }
             else
             {
-                Log.Warning("Trying to set control mode to invalid mode: {0}", newControlMode);
+                Log.Warning($"Trying to set control mode to invalid mode: {newControlMode}");
             }
 
             Log.Trace("Leaving PlaneMode.SetControlMode()");
@@ -466,102 +459,18 @@ namespace PlaneMode
             Log.Trace("Leaving PlaneMode.ShowMessageControlMode()");
         }
 
-        private static void InitializeSettings()
-        {
-            Log.Trace("Entering PlaneMode.InitializeSettings()");
-            Log.Debug("Initializing settings");
-
-            foreach (var settings in GameDatabase.Instance.GetConfigNodes("PLANEMODE"))
-            {
-                Log.Debug("Found default settings");
-
-                ParseSettings(settings);
-            }
-
-            // LEGACY: When breaking backward compatibility stop reading this node
-            foreach (var settings in GameDatabase.Instance.GetConfigNodes("PLANEMODE_USER_SETTINGS"))
-            {
-                Log.Debug("Found user settings");
-
-                ParseSettings(settings);
-            }
-
-            Log.Trace("Leaving PlaneMode.InitializeSettings()");
-        }
-
-        private static void ParseSettings(ConfigNode settings)
-        {
-            Log.Trace("Entering PlaneMode.ParseSettings()");
-            Log.Debug("Parsing settings: {0}", settings.ToString());
-
-            try
-            {
-                if (settings.HasNode("TOGGLE_CONTROL_MODE"))
-                {
-                    Log.Debug("Loading TOGGLE_CONTROL_MODE");
-
-                    ToggleKey.Load(settings.GetNode("TOGGLE_CONTROL_MODE"));
-                }
-
-                if (settings.HasNode("HOLD_CONTROL_MODE"))
-                {
-                    Log.Debug("Loading HOLD_CONTROL_MODE");
-
-                    HoldKey.Load(settings.GetNode("HOLD_CONTROL_MODE"));
-                }
-
-                if (settings.HasValue("pitchInvert"))
-                {
-                    Log.Debug("Loading pitchInvert");
-
-                    _pitchInvert = bool.Parse(settings.GetValue("pitchInvert"));
-                }
-
-                if (settings.HasValue("enableAppLauncherButton"))
-                {
-                    Log.Debug("Loading enableAppLauncherButton");
-
-                    _enableAppLauncherButton = bool.Parse(settings.GetValue("enableAppLauncherButton"));
-                }
-
-                if (settings.HasValue("logLevel"))
-                {
-                    Log.Debug("Loading logLevel");
-
-                    var logLevelString = settings.GetValue("logLevel");
-
-                    try
-                    {
-                        Log.Level = (LogLevel)Enum.Parse(typeof(LogLevel), logLevelString, ignoreCase: true);
-                    }
-                    catch (ArgumentException)
-                    {
-                        // Enum.TryParse() was only added with .NET 4
-                        Log.Warning("Failed to parse logLevel setting: {0}", logLevelString);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Warning("Settings loading failed: {0}", e.ToString());
-            }
-
-            Log.Trace("Leaving PlaneMode.ParseSettings()");
-        }
-
         private static Texture GetTexture(ModTexture modTexture)
         {
             Log.Trace("Entering PlaneMode.GetTexture()");
-            Log.Trace("Getting texture: {0}", modTexture);
+            Log.Trace($"Getting texture: {modTexture}");
 
-            Log.Debug("Loading texture: {0}", modTexture);
+            Log.Debug($"Loading texture: {modTexture}");
 
+            var texture = GameDatabase
+                .Instance
+                .GetTexture($"{GetBaseDirectory().Name}/Textures/{modTexture}", false);
 
-            var texture = GameDatabase.Instance.GetTexture(
-                GetBaseDirectory().Name + String.Format("/Textures/{0}", modTexture), false
-            );
-
-            Log.Debug("Loaded texture: {0}", modTexture);
+            Log.Debug($"Loaded texture: {modTexture}");
             Log.Trace("Leaving PlaneMode.GetTexture()");
 
             return texture;

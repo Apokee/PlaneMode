@@ -16,9 +16,9 @@ namespace PlaneMode
 
             TryParseControlMode(node.GetValue(ControlModeNodeKey), out ControlMode);
 
-            if (part != null && part.partInfo != null)
+            if (part?.partInfo != null)
             {
-                Log.Debug("Part {0} loaded ControlMode: {1}", part.partInfo.title, ControlMode);
+                Log.Debug($"Part {part.partInfo.title} loaded ControlMode: {ControlMode}");
             }
 
             Log.Trace("Leaving ModulePlaneMode.OnLoad()");
@@ -30,7 +30,7 @@ namespace PlaneMode
 
             node.AddValue(ControlModeNodeKey, (byte)ControlMode);
 
-            Log.Debug("Part {0} saved ControlMode: {1}", part.partInfo.title, ControlMode);
+            Log.Debug($"Part {part.partInfo.title} saved ControlMode: {ControlMode}");
 
             Log.Trace("Leaving ModulePlaneMode.OnSave()");
         }
@@ -38,7 +38,7 @@ namespace PlaneMode
         public override void OnStart(StartState state)
         {
             Log.Trace("Entering ModulePlaneMode.OnStart()");
-            Log.Debug("Part {0} is starting in state {1}", part.partInfo.title, state);
+            Log.Debug($"Part {part.partInfo.title} is starting in state {state}");
 
             switch (ControlMode)
             {
@@ -47,49 +47,50 @@ namespace PlaneMode
                 case ControlMode.Rocket:
                     break;
                 default:
-                    Log.Debug("Part {0} does not have a valid ControlMode: {1}", part.partInfo.title, ControlMode);
+                    Log.Debug($"Part {part.partInfo.title} does not have a valid ControlMode: {ControlMode}");
 
                     if (state == StartState.Editor)
                     {
                         var vesselRotation = EditorLogic.VesselRotation * Vector3.up;
 
-                        Log.Debug("Part {0} is in Editor with vesselRotation: {1}",
-                            part.partInfo.title,
-                            vesselRotation
-                        );
+                        Log.Debug($"Part {part.partInfo.title} is in Editor with vesselRotation: {vesselRotation}");
 
                         if (vesselRotation == Vector3.up)
                         {
-                            Log.Debug("Setting part {0} control mode to Rocket because it's in the VAB",
-                                part.partInfo.title
+                            Log.Debug(
+                                $"Setting part {part.partInfo.title} control mode to " +
+                                $"{Config.Instance.DefaultVabControlMode} because it's in the VAB"
                             );
 
-                            ControlMode = ControlMode.Rocket;
+                            ControlMode = Config.Instance.DefaultVabControlMode;
                         }
                         else if (vesselRotation == Vector3.forward)
                         {
-                            Log.Debug("Setting part {0} control mode to Plane because it's in the SPH",
-                                part.partInfo.title
+                            Log.Debug(
+                                $"Setting part {part.partInfo.title} control mode to " +
+                                $"{Config.Instance.DefaultSphControlMode} because it's in the SPH"
                             );
 
-                            ControlMode = ControlMode.Plane;
+                            ControlMode = Config.Instance.DefaultSphControlMode;
                         }
                         else
                         {
-                            Log.Debug("Setting part {0} control mode to Rocket because we don't know where it is",
-                                part.partInfo.title
+                            Log.Debug(
+                                $"Setting part {part.partInfo.title} control mode to " +
+                                $"{Config.Instance.DefaultControlMode} because we don't know where it is"
                             );
 
-                            ControlMode = ControlMode.Rocket;
+                            ControlMode = Config.Instance.DefaultControlMode;
                         }
                     }
                     else
                     {
-                        Log.Debug("Setting part {0} control mode to Rocket because it's not in the editor",
-                                part.partInfo.title
-                            );
+                        Log.Debug(
+                            $"Setting part {part.partInfo.title} control mode to {Config.Instance.DefaultControlMode} " +
+                            "because it's not in the editor"
+                        );
 
-                        ControlMode = ControlMode.Rocket;
+                        ControlMode = Config.Instance.DefaultControlMode;
                     }
                     break;
             }
@@ -120,7 +121,7 @@ namespace PlaneMode
                     break;
             }
 
-            Log.Info("Toggled control mode for {0} to {1}", part.partInfo.title, ControlMode);
+            Log.Info($"Toggled control mode for {part.partInfo.title} to {ControlMode}");
             Log.Trace("Leaving ModulePlaneMode.ToggleControlMode()");
         }
 
@@ -130,7 +131,7 @@ namespace PlaneMode
 
             ControlMode = controlMode;
 
-            Log.Info("Changed control mode for {0} to {1}", part.partInfo.title, ControlMode);
+            Log.Info($"Changed control mode for {part.partInfo.title} to {ControlMode}");
             Log.Trace("Leaving ModulePlaneMode.SetControlMode()");
         }
 

@@ -1,3 +1,4 @@
+os: Visual Studio 2015 RC
 version: "{build}"
 
 configuration:
@@ -5,25 +6,55 @@ configuration:
   - Release
 
 install:
-    ps: |
-        $kspLibs = "Assembly-CSharp.dll", "Assembly-CSharp-firstpass.dll", "UnityEngine.dll"
-        $kspLibsUrl = "http://build.apokee.com/dependencies/ksp/1.0.2"
-        $kspLibsDir = "$env:APPVEYOR_BUILD_FOLDER/Library/KSP"
+  ps: |
+      $kspLibs = "Assembly-CSharp.dll", "Assembly-CSharp-firstpass.dll", "UnityEngine.dll"
+      $kspLibsUrl = "http://build.apokee.com/dependencies/ksp/1.0.4"
+      $kspLibsDir = "$env:APPVEYOR_BUILD_FOLDER/Library/KSP"
 
-        New-Item $kspLibsDir -Type Directory -Force | Out-Null
+      New-Item $kspLibsDir -Type Directory -Force | Out-Null
 
-        foreach ($kspLib in $kspLibs)
-        {
-          Start-FileDownload "$kspLibsUrl/$kspLib" -FileName "$kspLibsDir/$kspLib"
-        }
+      foreach ($kspLib in $kspLibs)
+      {
+        Start-FileDownload "$kspLibsUrl/$kspLib" -FileName "$kspLibsDir/$kspLib"
+      }
 
 before_build:
   ps: |
-      $env:BUILD_VERSION = (cat VERSION)
+      $isMasterBranch = $env:APPVEYOR_REPO_BRANCH -eq "master"
+      $isReleaseConfiguration = $env:CONFIGURATION -eq "Release"
+      $isTagged = $env:APPVEYOR_REPO_TAG -eq "true"
+      $env:BUILD_RELEASE = $isMasterBranch -and $isReleaseConfiguration -and $isTagged
+
+      if ($env:BUILD_RELEASE -eq "True") {
+        Add-AppveyorMessage "Building RELEASE version"
+      } else {
+        Add-AppveyorMessage "Building NON-RELEASE version"
+      }
 
 build_script:
-    ps: |
+  ps: |
+      if ($env:BUILD_RELEASE -eq "True") {
+        ./build -configuration="$env:CONFIGURATION" -release=true
+      } else {
         ./build -configuration="$env:CONFIGURATION"
+      }
+
+after_build:
+  ps: |
+      $env:BUILD_VERSION = (cat Output/VERSION)
+      $env:BUILD_PRELEASE = (cat Output/PRELEASE)
+      $env:BUILD_CHANGELOG = [System.String]::Join("\n", (cat Output/CHANGELOG))
+
+      $versionMessage = "Version: $env:BUILD_VERSION"
+
+      if ($env:BUILD_PRELEASE -eq "true") {
+        $versionMessage += " (PRELEASE)"
+      }
+
+      Add-AppveyorMessage "$versionMessage"
+      Add-AppveyorMessage "Changes:`n$env:BUILD_CHANGELOG"
+
+test: off
 
 artifacts:
   - path: 'Output\Package\$(configuration)\*.zip'
@@ -32,12 +63,11 @@ artifacts:
 deploy:
   - provider: GitHub
     release: v$(BUILD_VERSION)
+    description: $(BUILD_CHANGELOG)
     auth_token:
       secure: EmsGaC6JRUeanKOhuSCl3ka+kK0czrAG7LHBaYONuUWfV/rIARRFkwoSKZiZHWTe
     artifact: ZipPackage
-    draft: true
-    prerelease: false
+    draft: false
+    prerelease: $(BUILD_PRELEASE)
     on:
-      branch: master
-      configuration: Release
-      appveyor_repo_tag: true
+      build_release: True

@@ -1,3 +1,8 @@
+## v1.2.0
+##### New
+- Add `defaultControlMode`, `defaultVabControlMode`, `defaultSphControlMode` configuration settings to control default
+  control mode used for various situations.
+
 ## v1.1.0
 ##### New
 - Add `KSPAssembly` attribute to assembly.
