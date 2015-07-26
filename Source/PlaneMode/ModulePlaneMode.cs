@@ -125,6 +125,24 @@ namespace PlaneMode
             Log.Trace("Leaving ModulePlaneMode.ToggleControlMode()");
         }
 
+        [KSPAction("Control Mode: Toggle")]
+        public void ActionToggleControlMode(KSPActionParam p)
+        {
+            ToggleControlMode();
+        }
+
+        [KSPAction("Control Mode: Rocket")]
+        public void ActionSetRocketControlMode(KSPActionParam p)
+        {
+            SetControlMode(ControlMode.Rocket);
+        }
+
+        [KSPAction("Control Mode: Plane")]
+        public void ActionSetPlaneControlMode(KSPActionParam p)
+        {
+            SetControlMode(ControlMode.Plane);
+        }
+
         public void SetControlMode(ControlMode controlMode)
         {
             Log.Trace("Entering ModulePlaneMode.SetControlMode()");
