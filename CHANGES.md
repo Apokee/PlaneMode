@@ -1,4 +1,6 @@
 ## v1.2.1-alpha
+##### Fixes
+- Fix example configuration patch to show how to actually change toggle keys.
 
 ## v1.2.0
 ##### New
