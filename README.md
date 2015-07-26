@@ -32,7 +32,8 @@ The control mode is stored with command pods, probe cores, and docking ports. Th
 whether the part was created in the VAB (Rocket) or SPH (Plane). Existing parts in flight will default to Rocket mode.
 The part used is determined by which is selected by the *Control From Here* button. You can toggle the control mode of
 a part by right clicking on it in the editor or in flight and press *Toggle Control Mode*. Pressing the Application
-Launcher button will also toggle the control mode of the current controlling part.
+Launcher button will also toggle the control mode of the current controlling part. Actions are also available for use
+in action groups to toggle the control mode or switch to a specific mode.
 
 ## Configuration
 
