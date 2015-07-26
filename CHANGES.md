@@ -1,4 +1,4 @@
-## v1.3.0-alpha
+## v1.3.0
 ##### New
 - Add actions to all applicables parts to change control modes, making them available to action groups. Available actions are:
   - `Control Mode: Toggle`
