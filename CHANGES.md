@@ -1,4 +1,10 @@
-## v1.2.1-alpha
+## v1.3.0-alpha
+##### New
+- Add actions to all applicables parts to change control modes, making them available to action groups. Available actions are:
+  - `Control Mode: Toggle`
+  - `Control Mode: Rocket`
+  - `Control Mode: Plane`
+
 ##### Fixes
 - Fix example configuration patch to show how to actually change toggle keys.
 
