@@ -15,7 +15,7 @@ Plane Mode's CKAN identifier is `PlaneMode`. It may be installed from the comman
 It can also be installed from the GUI.
 
 ### Manual
-1. Download the distribution package from [Kerbal Stuff][kerbalstuff] or [GitHub][github-releases].
+1. Download the distribution package from [GitHub][github-releases].
 2. Extract the contents of the archive to your KSP directory. This should create an `PlaneMode` directory under
 the `<KSP>/GameData` directory.
 3. Follow the installation instructions for all dependencies.
@@ -49,5 +49,4 @@ Phillip "Belisarius" Reiss.
 [build]: https://ci.appveyor.com/project/Apokee/planemode/branch/develop
 [build-badge]: https://ci.appveyor.com/api/projects/status/nlnofph4shq6t7ic/branch/develop?svg=true
 [github-releases]: https://github.com/Apokee/PlaneMode/releases
-[kerbalstuff]: https://kerbalstuff.com/mod/493/Plane%20Mode
 [module-manager]: http://forum.kerbalspaceprogram.com/threads/55219
