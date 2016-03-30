@@ -38,7 +38,14 @@ Task("Init")
     .Does(() =>
 {
     var kspLibDirectory = System.IO.Path.Combine("Library", "KSP");
-    var kspLibs = new [] { "Assembly-CSharp.dll", "Assembly-CSharp-firstpass.dll", "UnityEngine.dll" };
+    var kspLibs = new []
+    {
+        "Assembly-CSharp.dll",
+        "Assembly-CSharp-firstpass.dll",
+        "KSPUtil.dll",
+        "UnityEngine.dll",
+        "UnityEngine.UI.dll"
+    };
 
     CreateDirectory(kspLibDirectory);
 
