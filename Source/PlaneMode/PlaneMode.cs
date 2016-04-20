@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using KSP.UI.Screens;
 using PlaneMode.Manipulators;
 using UnityEngine;
 

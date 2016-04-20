@@ -1,3 +1,7 @@
+## v1.3.1
+##### Changes
+- Compatability with KSP 1.1
+
 ## v1.3.0
 ##### New
 - Add actions to all applicables parts to change control modes, making them available to action groups. Available actions are:
