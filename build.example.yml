@@ -3,5 +3,5 @@
 ksp_dir: null
 
 # Executable file to run.
-# Example: "KSP.exe"
+# Example: "KSP_x64.exe"
 ksp_bin: null

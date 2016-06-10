@@ -1,7 +1,4 @@
-#r "Library/NuGet/YamlDotNet.3.7.0/lib/net35/YamlDotNet.dll"
-
-using System.Text.RegularExpressions;
-using YamlDotNet.Serialization;
+#addin "Cake.Yaml"
 
 public T GetBuildConfiguration<T>() where T : new()
 {
@@ -9,14 +6,11 @@ public T GetBuildConfiguration<T>() where T : new()
     var workingDirectoryName = workingDirectorySegments[workingDirectorySegments.Length - 1];
 
     var configFile = (new [] { "build.yml", String.Format("../{0}.build.yml", workingDirectoryName) })
-        .FirstOrDefault(System.IO.File.Exists);
+        .Select(i => File(i))
+        .Select(i => i.Path)
+        .FirstOrDefault(FileExists);
 
-    if (configFile == null)
-    {
-        return new T();
-    }
-
-    return new Deserializer(ignoreUnmatched: true).Deserialize<T>(new StreamReader(configFile));
+    return configFile != null ? DeserializeYamlFromFile<T>(configFile) : new T();
 }
 
 public string GetSolution()
@@ -92,7 +86,11 @@ public string GetGitRevision(bool useShort)
 
         var shortOption = useShort ? "--short" : "";
         StartProcess(git,
-            new ProcessSettings { RedirectStandardOutput = true, Arguments = $"rev-parse {shortOption} HEAD"},
+            new ProcessSettings
+            {
+                RedirectStandardOutput = true,
+                Arguments = string.Format("rev-parse {0} HEAD", shortOption)
+            },
             out output
         );
 
@@ -117,15 +115,15 @@ public SemVer GetVersion()
 
 public ChangeLog GetChangeLog()
 {
-    return new ChangeLog("CHANGES.md");
+    return new ChangeLog("CHANGELOG.md");
 }
 
 public sealed class ChangeLog
 {
     private static readonly Regex VersionPattern = new Regex(@"^## v(?<version>.+)$", RegexOptions.Compiled);
 
-    public SemVer LatestVersion { get; }
-    public string LatestChanges { get; }
+    public SemVer LatestVersion { get; private set; }
+    public string LatestChanges { get; private set; }
 
     public ChangeLog(string path)
     {
@@ -176,11 +174,11 @@ public sealed class SemVer
 
     private string _string;
 
-    public uint Major { get; }
-    public uint Minor { get; }
-    public uint Patch { get; }
-    public string Pre { get; }
-    public string Build { get; }
+    public uint Major { get; private set; }
+    public uint Minor { get; private set; }
+    public uint Patch { get; private set; }
+    public string Pre { get; private set; }
+    public string Build { get; private set; }
 
     public SemVer(string s)
     {
@@ -208,7 +206,7 @@ public sealed class SemVer
         }
         else
         {
-            throw new FormatException($"Unable to parse semantic version: {_string}");
+            throw new FormatException(string.Format("Unable to parse semantic version: {0}", _string));
         }
     }
 
@@ -220,16 +218,16 @@ public sealed class SemVer
         Pre = pre;
         Build = build;
 
-        _string = $"{Major}.{Minor}.{Patch}";
+        _string = string.Format("{0}.{1}.{2}", Major, Minor, Patch);
 
         if (pre != null)
         {
-            _string += $"-{Pre}";
+            _string += string.Format("-{0}", Pre);
         }
 
         if (build != null)
         {
-            _string += $"+{Build}";
+            _string += string.Format("+{0}", Build);
         }
     }
 

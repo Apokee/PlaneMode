@@ -1,0 +1,8 @@
+language: csharp
+
+env:
+  - BUILD_CONFIGURATION=Debug
+  - BUILD_CONFIGURATION=Release
+
+script:
+  - ./build --configuration=$BUILD_CONFIGURATION

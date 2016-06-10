@@ -1,8 +1,4 @@
-/Library/KSP/
-/Library/NuGet/
-/Output/
-
-AssemblyInfo.cs
+/.build/
 
 *.suo
 *.user
