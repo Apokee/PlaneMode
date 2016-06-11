@@ -2,6 +2,7 @@
 {
     internal static class Log
     {
+        // ReSharper disable once MemberCanBePrivate.Global
         public static LogLevel Level { get; set; }
 
         static Log()
