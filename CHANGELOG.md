@@ -1,4 +1,6 @@
 ## v1.4.1-alpha
+##### Fixed
+- Fixed some annoying NullReferenceExceptions.
 
 ## v1.4.0
 ##### Changed

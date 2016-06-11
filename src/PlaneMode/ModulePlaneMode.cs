@@ -38,9 +38,10 @@ namespace PlaneMode
             Log.Trace("Leaving ModulePlaneMode.OnSave()");
         }
 
-        public override void OnAwake()
+        public override void OnStart(StartState state)
         {
-            Log.Trace("Entering ModulePlaneMode.OnAwake()");
+            Log.Trace("Entering ModulePlaneMode.OnStart()");
+            Log.Debug($"Part {part.partInfo.title} is starting in state {state}");
 
             _toggleControlModeEvent = Events.Find(i => i.name == "ToggleControlMode");
 
@@ -48,14 +49,6 @@ namespace PlaneMode
                 Log.Debug($"Found ToggleControlMode event for part {part.partInfo.title}");
             else
                 Log.Warning($"Could not find ToggleControlMode event for part {part.partInfo.title}");
-
-            Log.Trace("Leaving ModulePlaneMode.OnAwake()");
-        }
-
-        public override void OnStart(StartState state)
-        {
-            Log.Trace("Entering ModulePlaneMode.OnStart()");
-            Log.Debug($"Part {part.partInfo.title} is starting in state {state}");
 
             switch (ControlMode)
             {
