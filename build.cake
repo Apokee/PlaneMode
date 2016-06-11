@@ -251,12 +251,12 @@ Task("Stage")
         globals.BuildStageGameDataModDirectory
     );
     CopyFile(
-        artworkDirectory.CombineWithFilePath("hotspot-white-38x38.png"),
-        buildStageGameDataModTexturesDirectory.CombineWithFilePath("AppLauncher.png")
+        artworkDirectory.CombineWithFilePath("airplane-white-38x38.png"),
+        buildStageGameDataModTexturesDirectory.CombineWithFilePath("AppLauncherPlane.png")
     );
     CopyFile(
-        artworkDirectory.CombineWithFilePath("hotspot-white-24x24.png"),
-        buildStageGameDataModTexturesDirectory.CombineWithFilePath("Toolbar.png")
+        artworkDirectory.CombineWithFilePath("rocket-white-38x38.png"),
+        buildStageGameDataModTexturesDirectory.CombineWithFilePath("AppLauncherRocket.png")
     );
     CopyFileToDirectory("CHANGELOG.md", globals.BuildStageGameDataModDirectory);
     CopyFileToDirectory("LICENSE.md", globals.BuildStageGameDataModDirectory);
