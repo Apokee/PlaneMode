@@ -1,4 +1,7 @@
 ## v1.4.1-alpha
+##### Changed
+- Use `UI_Cycle` attribute for more stock-like context menu item.
+
 ##### Fixed
 - Fixed some annoying NullReferenceExceptions.
 
