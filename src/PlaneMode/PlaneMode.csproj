@@ -71,7 +71,6 @@
     <Compile Include="LogLevel.cs" />
     <Compile Include="ModulePlaneMode.cs" />
     <Compile Include="PlaneMode.cs" />
-    <Compile Include="Extensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

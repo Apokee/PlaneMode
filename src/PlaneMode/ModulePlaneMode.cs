@@ -186,13 +186,15 @@ namespace PlaneMode
             result = default(ControlMode);
 
             byte b;
-            if (Byte.TryParse(s, out b) && Enum.IsDefined(typeof(ControlMode), b))
+            if (byte.TryParse(s, out b) && Enum.IsDefined(typeof(ControlMode), b))
             {
                 result = (ControlMode)b;
                 return true;
             }
-
-            return false;
+            else
+            {
+                return false;
+            }
         }
     }
 }
