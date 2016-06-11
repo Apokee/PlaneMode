@@ -7,9 +7,16 @@ namespace PlaneMode
     {
         private const string ControlModeNodeKey = "controlMode";
 
-        private BaseEvent _toggleControlModeEvent;
-
         public ControlMode ControlMode { get; private set; } = ControlMode.Rocket;
+
+        [KSPField(guiActive = true, guiActiveEditor = true, guiName = "Control Mode", isPersistant = true)]
+        [UI_Cycle(
+            affectSymCounterparts = UI_Scene.None,
+            controlEnabled = true,
+            scene = UI_Scene.All,
+            stateNames = new[] { "Rocket", "Plane" }
+        )]
+        private int _controlMode = -1;
 
         public override void OnLoad(ConfigNode node)
         {
@@ -42,13 +49,6 @@ namespace PlaneMode
         {
             Log.Trace("Entering ModulePlaneMode.OnStart()");
             Log.Debug($"Part {part.partInfo.title} is starting in state {state}");
-
-            _toggleControlModeEvent = Events.Find(i => i.name == "ToggleControlMode");
-
-            if (_toggleControlModeEvent != null)
-                Log.Debug($"Found ToggleControlMode event for part {part.partInfo.title}");
-            else
-                Log.Warning($"Could not find ToggleControlMode event for part {part.partInfo.title}");
 
             switch (ControlMode)
             {
@@ -105,38 +105,19 @@ namespace PlaneMode
                     break;
             }
 
-            UpdateToggleControlModeGuiName();
-
-            Log.Trace("Leaving ModulePlaneMode.OnStart()");
-        }
-
-        [KSPEvent(
-            guiName = "Toggle Control Mode",
-            name = "PlaneMode.ModulePlaneMode.ToggleControlMode",
-            guiActive = true,
-            guiActiveEditor = true
-        )]
-        public void ToggleControlMode()
-        {
-            Log.Trace("Entering ModulePlaneMode.ToggleControlMode()");
-
-            switch(ControlMode)
+            switch (ControlMode)
             {
                 case ControlMode.Rocket:
-                    ControlMode = ControlMode.Plane;
+                    _controlMode = 0;
                     break;
                 case ControlMode.Plane:
-                    ControlMode = ControlMode.Rocket;
+                    _controlMode = 1;
                     break;
                 default:
-                    ControlMode = ControlMode.Rocket;
-                    break;
+                    throw new ArgumentOutOfRangeException();
             }
 
-            UpdateToggleControlModeGuiName();
-
-            Log.Info($"Toggled control mode for {part.partInfo.title} to {ControlMode}");
-            Log.Trace("Leaving ModulePlaneMode.ToggleControlMode()");
+            Log.Trace("Leaving ModulePlaneMode.OnStart()");
         }
 
         [KSPAction("Control Mode: Toggle")]
@@ -157,6 +138,24 @@ namespace PlaneMode
             SetControlMode(ControlMode.Plane);
         }
 
+        public void FixedUpdate()
+        {
+            switch (_controlMode)
+            {
+                case 0:
+                    if (ControlMode != ControlMode.Rocket)
+                        SetControlMode(ControlMode.Rocket);
+                    break;
+                case 1:
+                    if (ControlMode != ControlMode.Plane)
+                        SetControlMode(ControlMode.Plane);
+                    break;
+                default:
+                    Log.Warning($"Invalid {nameof(_controlMode)}: {_controlMode}");
+                    break;
+            }
+        }
+
         public void SetControlMode(ControlMode controlMode)
         {
             Log.Trace("Entering ModulePlaneMode.SetControlMode()");
@@ -167,10 +166,25 @@ namespace PlaneMode
             Log.Trace("Leaving ModulePlaneMode.SetControlMode()");
         }
 
-        private void UpdateToggleControlModeGuiName()
+        public void ToggleControlMode()
         {
-            if (_toggleControlModeEvent != null)
-                _toggleControlModeEvent.guiName = $"Control Mode: {ControlMode}";
+            Log.Trace("Entering ModulePlaneMode.ToggleControlMode()");
+
+            switch (ControlMode)
+            {
+                case ControlMode.Rocket:
+                    ControlMode = ControlMode.Plane;
+                    break;
+                case ControlMode.Plane:
+                    ControlMode = ControlMode.Rocket;
+                    break;
+                default:
+                    ControlMode = ControlMode.Rocket;
+                    break;
+            }
+
+            Log.Info($"Toggled control mode for {part.partInfo.title} to {ControlMode}");
+            Log.Trace("Leaving ModulePlaneMode.ToggleControlMode()");
         }
 
         // ReSharper disable once UnusedMethodReturnValue.Local
@@ -181,7 +195,7 @@ namespace PlaneMode
             byte b;
             if (byte.TryParse(s, out b) && Enum.IsDefined(typeof(ControlMode), b))
             {
-                result = (ControlMode)b;
+                result = (ControlMode) b;
                 return true;
             }
             else
