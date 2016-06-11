@@ -1,4 +1,4 @@
-## v1.4.0-alpha
+## v1.4.0
 ##### Changed
 - Context menu items have been consolidated into a single item that shows current control mode and allows you to toggle
   betwen them.

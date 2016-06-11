@@ -3,7 +3,7 @@
     "identifier": "PlaneMode",
     "$kref": "#/ckan/github/Apokee/PlaneMode",
     "name": "Plane Mode",
-    "abstract": "Swap Yaw/Roll in Flight",
+    "abstract": "Swap yaw/roll in flight.",
     "author": "Dwayne Bent",
     "license": "MIT",
     "resources": {
@@ -53,6 +53,13 @@
             "version": ">=1.3.1",
             "override": {
                 "ksp_version_min": "1.1.0",
+                "ksp_version_max": "1.1.2"
+            }
+        },
+        {
+            "version": ">=1.4.0",
+            "override": {
+                "ksp_version_min": "1.1.2",
                 "ksp_version_max": "1.1.2"
             }
         }
