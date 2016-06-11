@@ -44,7 +44,7 @@ after_build:
 test: off
 
 artifacts:
-  - path: 'Output\Package\$(configuration)\*.zip'
+  - path: '.build\pkg\$(configuration)\*.zip'
     name: ZipPackage
 
 deploy:
