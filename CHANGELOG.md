@@ -1,4 +1,6 @@
 ## v1.4.2-alpha
+##### Fixed
+- Fixed using AppLauncher button to change control mode.
 
 ## v1.4.1
 ##### Changed
