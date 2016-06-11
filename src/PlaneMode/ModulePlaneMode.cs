@@ -162,6 +162,18 @@ namespace PlaneMode
 
             ControlMode = controlMode;
 
+            switch (controlMode)
+            {
+                case ControlMode.Rocket:
+                    _controlMode = 0;
+                    break;
+                case ControlMode.Plane:
+                    _controlMode = 1;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(controlMode), controlMode, null);
+            }
+
             Log.Info($"Changed control mode for {part.partInfo.title} to {ControlMode}");
             Log.Trace("Leaving ModulePlaneMode.SetControlMode()");
         }
@@ -173,13 +185,13 @@ namespace PlaneMode
             switch (ControlMode)
             {
                 case ControlMode.Rocket:
-                    ControlMode = ControlMode.Plane;
+                    SetControlMode(ControlMode.Plane);
                     break;
                 case ControlMode.Plane:
-                    ControlMode = ControlMode.Rocket;
+                    SetControlMode(ControlMode.Rocket);
                     break;
                 default:
-                    ControlMode = ControlMode.Rocket;
+                    SetControlMode(ControlMode.Rocket);
                     break;
             }
 
