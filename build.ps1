@@ -7,35 +7,45 @@ Param (
 )
 
 # Globals
-# TODO: The experimental flag is necessary after upgrading to VS2015 until the final version of Roslyn is available
-# This should presumably occur once VS2015 is final
-$UseExperimental	= $true
-$RootDir            = "$PSScriptRoot"
-$PackagesConfigFile = "$RootDir/packages.config"
-$PackagesDir        = "$RootDir/Library/NuGet"
-$CakeVersionXPath   = "//package[@id='Cake'][1]/@version"
-$CakeVersion        = (Select-Xml -Xml ([xml](Get-Content $PackagesConfigFile)) -XPath $CakeVersionXPath).Node.Value
-$CakeExe            = "$PackagesDir/Cake.$CakeVersion/Cake.exe"
+$NugetVersion       = "3.4.3"
+$UseExperimental    = $false
+$RootDir            = "${PSScriptRoot}"
+$BuildDir           = "${RootDir}/.build"
+$ToolsDir           = "${BuildDir}/tools"
+$PackagesDir        = "${BuildDir}/lib/nuget"
+$NugetExe           = "${ToolsDir}/nuget/${NugetVersion}/NuGet.exe"
+$PackagesConfigFile = "${RootDir}/packages.config"
+$CakeVersion        = (Select-Xml -Xml ([xml](Get-Content $PackagesConfigFile)) -XPath "//package[@id='Cake'][1]/@version").Node.Value
+$CakeExe            = "${PackagesDir}/Cake.${CakeVersion}/Cake.exe"
+
+# Download NuGet
+$nugetDir = Split-Path $NugetExe -Parent
+if (!(Test-Path $nugetDir)) {
+    mkdir $nugetDir > $null
+}
+
+if (!(Test-Path $NugetExe)) {
+    (New-Object System.Net.WebClient).DownloadFile("https://dist.nuget.org/win-x86-commandline/v${NugetVersion}/nuget.exe", $NugetExe)
+}
 
 # Install build packages
-iex "NuGet install `"$PackagesConfigFile`" -OutputDirectory `"$PackagesDir`"" |
-    Select-String -NotMatch -Pattern "All packages listed in packages.config are already installed."
+iex "${NugetExe} install `"${PackagesConfigFile}`" -OutputDirectory `"${PackagesDir}`""
 
 # Build args
 $cakeArgs = @()
 
 if ($Arg0) {
     if ($Arg0[0] -eq "-") {
-        $cakeArgs += "$Arg0"
+        $cakeArgs += "${Arg0}"
     } else {
-        $cakeArgs += "-target=$Arg0"
+        $cakeArgs += "--target=${Arg0}"
     }
 }
 
 if ($UseExperimental) {
-    $cakeArgs += "-experimental"
+    $cakeArgs += "--experimental"
 }
 
 # Run Cake
-iex "$CakeExe $cakeArgs $RemainingArgs"
+iex "${CakeExe} ${cakeArgs} ${RemainingArgs}"
 exit $LASTEXITCODE
