@@ -1,3 +1,7 @@
+## v1.4.2
+##### Fixed
+- Fixed using AppLauncher button to change control mode.
+
 ## v1.4.1
 ##### Changed
 - Use `UI_Cycle` attribute for more stock-like context menu item.
