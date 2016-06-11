@@ -1,4 +1,4 @@
-# Plane Mode [![Build status][build-badge]][build]
+# Plane Mode [![AppVeyor Status][build-badge-appveyor]][build-appveyor] [![Travis CI Status][build-badge-travis]][build-travis]
 
 **Plane Mode** is a Kerbal Space Program mod that allows you to easily swap control input for roll/yaw while in
 flight. This is especially useful for joystick users who will typically want their joystick to control yaw for rockets
@@ -46,7 +46,9 @@ please see the Module Manager documentation for more information.
 This is a continuation of the [Aeroplane Mode](http://forum.kerbalspaceprogram.com/threads/90034) mod created by
 Phillip "Belisarius" Reiss.
 
-[build]: https://ci.appveyor.com/project/Apokee/planemode/branch/develop
-[build-badge]: https://ci.appveyor.com/api/projects/status/nlnofph4shq6t7ic/branch/develop?svg=true
+[build-appveyor]: https://ci.appveyor.com/project/Apokee/planemode/branch/develop
+[build-travis]: https://travis-ci.org/Apokee/PlaneMode
+[build-badge-appveyor]: https://ci.appveyor.com/api/projects/status/nlnofph4shq6t7ic/branch/develop?svg=true
+[build-badge-travis]: https://api.travis-ci.org/Apokee/PlaneMode.svg?branch=develop
 [github-releases]: https://github.com/Apokee/PlaneMode/releases
 [module-manager]: http://forum.kerbalspaceprogram.com/threads/55219

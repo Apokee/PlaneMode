@@ -4,26 +4,12 @@ configuration:
   - Debug
   - Release
 
-install:
-  ps: |
-      $kspLibs = "Assembly-CSharp.dll", "Assembly-CSharp-firstpass.dll", "KSPUtil.dll", "UnityEngine.dll", "UnityEngine.UI.dll"
-      $kspLibsUrl = "http://build.apokee.com/dependencies/ksp/1.1.2.1260"
-      $kspLibsDir = "$env:APPVEYOR_BUILD_FOLDER/Library/KSP"
-
-      New-Item $kspLibsDir -Type Directory -Force | Out-Null
-
-      foreach ($kspLib in $kspLibs)
-      {
-        Start-FileDownload "$kspLibsUrl/$kspLib" -FileName "$kspLibsDir/$kspLib"
-      }
-
 before_build:
   ps: |
       $isMasterBranch = $env:APPVEYOR_REPO_BRANCH -eq "master"
       $isReleaseConfiguration = $env:CONFIGURATION -eq "Release"
       $isTagged = $env:APPVEYOR_REPO_TAG -eq "true"
       $env:BUILD_RELEASE = $isMasterBranch -and $isReleaseConfiguration -and $isTagged
-
       if ($env:BUILD_RELEASE -eq "True") {
         Add-AppveyorMessage "Building RELEASE version"
       } else {
@@ -40,23 +26,25 @@ build_script:
 
 after_build:
   ps: |
-      $env:BUILD_VERSION = (cat Output/VERSION)
-      $env:BUILD_PRELEASE = (cat Output/PRELEASE)
-      $env:BUILD_CHANGELOG = [System.String]::Join("\n", (cat Output/CHANGELOG))
-
-      $versionMessage = "Version: $env:BUILD_VERSION"
-
-      if ($env:BUILD_PRELEASE -eq "true") {
-        $versionMessage += " (PRELEASE)"
+      $env:BUILD_VERSION = (cat .build/meta/VERSION)
+      $env:BUILD_PRERELEASE = (cat .build/meta/PRERELEASE)
+      $changeLog = (cat .build/meta/CHANGELOG)
+      if ($changeLog -eq $null) {
+        $env:BUILD_CHANGELOG = ""
+      } else {
+        $env:BUILD_CHANGELOG = [System.String]::Join("\n", $changeLog)
       }
-
+      $versionMessage = "Version: $env:BUILD_VERSION"
+      if ($env:BUILD_PRERELEASE -eq "true") {
+        $versionMessage += " (PRERELEASE)"
+      }
       Add-AppveyorMessage "$versionMessage"
       Add-AppveyorMessage "Changes:`n$env:BUILD_CHANGELOG"
 
 test: off
 
 artifacts:
-  - path: 'Output\Package\$(configuration)\*.zip'
+  - path: '.build\pkg\$(configuration)\*.zip'
     name: ZipPackage
 
 deploy:

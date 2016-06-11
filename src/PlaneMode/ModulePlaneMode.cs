@@ -7,14 +7,17 @@ namespace PlaneMode
     {
         private const string ControlModeNodeKey = "controlMode";
 
-        [KSPField(guiName = "Control Mode", guiActive = true, guiActiveEditor = true)]
-        public ControlMode ControlMode = ControlMode.Rocket;
+        private BaseEvent _toggleControlModeEvent;
+
+        public ControlMode ControlMode { get; private set; } = ControlMode.Rocket;
 
         public override void OnLoad(ConfigNode node)
         {
             Log.Trace("Entering ModulePlaneMode.OnLoad()");
 
-            TryParseControlMode(node.GetValue(ControlModeNodeKey), out ControlMode);
+            ControlMode controlMode;
+            TryParseControlMode(node.GetValue(ControlModeNodeKey), out controlMode);
+            ControlMode = controlMode;
 
             if (part?.partInfo != null)
             {
@@ -33,6 +36,20 @@ namespace PlaneMode
             Log.Debug($"Part {part.partInfo.title} saved ControlMode: {ControlMode}");
 
             Log.Trace("Leaving ModulePlaneMode.OnSave()");
+        }
+
+        public override void OnAwake()
+        {
+            Log.Trace("Entering ModulePlaneMode.OnAwake()");
+
+            _toggleControlModeEvent = Events.Find(i => i.name == "ToggleControlMode");
+
+            if (_toggleControlModeEvent != null)
+                Log.Debug($"Found ToggleControlMode event for part {part.partInfo.title}");
+            else
+                Log.Warning($"Could not find ToggleControlMode event for part {part.partInfo.title}");
+
+            Log.Trace("Leaving ModulePlaneMode.OnAwake()");
         }
 
         public override void OnStart(StartState state)
@@ -95,6 +112,8 @@ namespace PlaneMode
                     break;
             }
 
+            UpdateToggleControlModeGuiName();
+
             Log.Trace("Leaving ModulePlaneMode.OnStart()");
         }
 
@@ -120,6 +139,8 @@ namespace PlaneMode
                     ControlMode = ControlMode.Rocket;
                     break;
             }
+
+            UpdateToggleControlModeGuiName();
 
             Log.Info($"Toggled control mode for {part.partInfo.title} to {ControlMode}");
             Log.Trace("Leaving ModulePlaneMode.ToggleControlMode()");
@@ -153,19 +174,27 @@ namespace PlaneMode
             Log.Trace("Leaving ModulePlaneMode.SetControlMode()");
         }
 
+        private void UpdateToggleControlModeGuiName()
+        {
+            if (_toggleControlModeEvent != null)
+                _toggleControlModeEvent.guiName = $"Control Mode: {ControlMode}";
+        }
+
         // ReSharper disable once UnusedMethodReturnValue.Local
         private static bool TryParseControlMode(string s, out ControlMode result)
         {
             result = default(ControlMode);
 
             byte b;
-            if (Byte.TryParse(s, out b) && Enum.IsDefined(typeof(ControlMode), b))
+            if (byte.TryParse(s, out b) && Enum.IsDefined(typeof(ControlMode), b))
             {
                 result = (ControlMode)b;
                 return true;
             }
-
-            return false;
+            else
+            {
+                return false;
+            }
         }
     }
 }
