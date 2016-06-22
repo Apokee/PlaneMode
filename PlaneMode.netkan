@@ -62,6 +62,13 @@
                 "ksp_version_min": "1.1.2",
                 "ksp_version_max": "1.1.2"
             }
+        },
+        {
+            "version": ">=1.4.2",
+            "override": {
+                "ksp_version_min": "1.1.2",
+                "ksp_version_max": "1.1.3"
+            }
         }
     ]
 }
