@@ -7,7 +7,7 @@ namespace PlaneMode
     {
         private const string ControlModeNodeKey = "controlMode";
 
-        public ControlMode ControlMode { get; private set; } = ControlMode.Rocket;
+        public ControlMode ControlMode { get; private set; }
 
         [KSPField(guiActive = true, guiActiveEditor = true, guiName = "Control Mode", isPersistant = true)]
         [UI_Cycle(
