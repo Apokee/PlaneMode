@@ -6,10 +6,9 @@ configuration:
 
 before_build:
   ps: |
-      $isMasterBranch = $env:APPVEYOR_REPO_BRANCH -eq "master"
       $isReleaseConfiguration = $env:CONFIGURATION -eq "Release"
       $isTagged = $env:APPVEYOR_REPO_TAG -eq "true"
-      $env:BUILD_RELEASE = $isMasterBranch -and $isReleaseConfiguration -and $isTagged
+      $env:BUILD_RELEASE = $isReleaseConfiguration -and $isTagged
       if ($env:BUILD_RELEASE -eq "True") {
         Add-AppveyorMessage "Building RELEASE version"
       } else {
