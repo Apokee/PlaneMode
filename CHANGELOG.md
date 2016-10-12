@@ -1,4 +1,4 @@
-## v1.4.4-alpha
+## v1.4.4
 ##### Fixed
 - Fixed automatic detection of SPH for setting default control mode.
 
