@@ -1,3 +1,7 @@
+## v1.4.4
+##### Fixed
+- Fixed automatic detection of SPH for setting default control mode.
+
 ## v1.4.3
 ##### Changed
 - Compatability with KSP 1.2.
