@@ -56,7 +56,6 @@ private Globals GetGlobals()
     {
         "Assembly-CSharp.dll",
         "Assembly-CSharp-firstpass.dll",
-        "KSPUtil.dll",
         "UnityEngine.dll",
         "UnityEngine.UI.dll"
     };
@@ -90,7 +89,7 @@ Task("Init")
 Task("InitLibKsp")
     .Does(() =>
 {
-    const string kspLibsUrlBase = "http://build.apokee.com/dependencies/ksp/1.1.2.1260";
+    const string kspLibsUrlBase = "http://build.apokee.com/dependencies/ksp/1.2.0.1586";
 
     var globals = GetGlobals();
     

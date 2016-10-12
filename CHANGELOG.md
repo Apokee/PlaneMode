@@ -1,3 +1,7 @@
+## v1.4.3
+##### Changed
+- Compatability with KSP 1.2.
+
 ## v1.4.2
 ##### Fixed
 - Fixed using AppLauncher button to change control mode.
