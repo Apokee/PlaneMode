@@ -1,4 +1,4 @@
-#addin "Cake.Yaml"
+#addin "nuget:?package=Cake.Yaml&version=1.0.3.7"
 
 public T GetBuildConfiguration<T>() where T : new()
 {
