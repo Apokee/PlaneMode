@@ -1,4 +1,6 @@
 ## v1.4.5-alpha
+##### Changed
+- Compatibility with KSP 1.3.0.
 
 ## v1.4.4
 ##### Fixed
@@ -6,7 +8,7 @@
 
 ## v1.4.3
 ##### Changed
-- Compatability with KSP 1.2.
+- Compatibility with KSP 1.2.
 
 ## v1.4.2
 ##### Fixed
@@ -26,7 +28,7 @@
 
 ## v1.3.1
 ##### Changed
-- Compatability with KSP 1.1
+- Compatibility with KSP 1.1
 
 ## v1.3.0
 ##### Added
