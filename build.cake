@@ -89,7 +89,7 @@ Task("Init")
 Task("InitLibKsp")
     .Does(() =>
 {
-    const string kspLibsUrlBase = "http://build.apokee.com/dependencies/ksp/1.2.0.1586";
+    const string kspLibsUrlBase = "https://build.apokee.com/dependencies/ksp/1.3.0.1804";
 
     var globals = GetGlobals();
     
